@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
+import 'dart:io';
+import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
 
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({super.key});
@@ -24,20 +23,45 @@ class _AddPostScreenState extends State<AddPostScreen> {
     });
   }
 
-  void _addPost() {
-    // Add post to the list or send to server
-    // Clear the fields after adding
-    _titleController.clear();
-    _descriptionController.clear();
-    setState(() {
-      _image = null;
-    });
+  void _addPost() async {
+    if (_titleController.text.isNotEmpty &&
+        _descriptionController.text.isNotEmpty &&
+        _image != null) {
+      try {
+        await FirestoreService().addPost(
+          'UserName', // Replace with actual user name
+          _titleController.text,
+          _descriptionController.text,
+          _image!.path,
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Post added successfully')),
+        );
+        _titleController.clear();
+        _descriptionController.clear();
+        setState(() {
+          _image = null;
+        });
+      } catch (e) {
+        print(e);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add post: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill all fields and select an image')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CommonAppBar(title: 'Ask Community'),
+      appBar: AppBar(
+        title: const Text('Add Post'),
+        backgroundColor: Colors.green,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
