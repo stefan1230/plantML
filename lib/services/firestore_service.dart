@@ -15,7 +15,7 @@ class FirestoreService {
       });
     } catch (e) {
       print('Error adding post: $e');
-      throw e;
+      rethrow;
     }
   }
 }
