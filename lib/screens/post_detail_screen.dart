@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 import 'package:plantdiseaseidentifcationml/screens/community_screen.dart';
+import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
 
 class PostDetailScreen extends StatelessWidget {
   final Post post;
@@ -8,13 +9,20 @@ class PostDetailScreen extends StatelessWidget {
 
   PostDetailScreen({required this.post});
 
-  void _addComment(BuildContext context) {
+  void _addComment(BuildContext context) async {
     if (_commentController.text.isNotEmpty) {
-      post.comments.add(_commentController.text);
-      _commentController.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Comment added')),
-      );
+      try {
+        await FirestoreService().addComment(post.id, _commentController.text);
+        post.comments.add(_commentController.text);
+        _commentController.clear();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Comment added')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add comment: $e')),
+        );
+      }
     }
   }
 

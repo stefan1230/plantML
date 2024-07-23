@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:plantdiseaseidentifcationml/screens/add_post_screen.dart';
 import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 import 'package:plantdiseaseidentifcationml/screens/post_detail_screen.dart';
+// import 'package:plantdiseaseidentifcationml/models/post.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
@@ -12,55 +14,26 @@ class CommunityScreen extends StatefulWidget {
 }
 
 class _CommunityScreenState extends State<CommunityScreen> {
-  final List<Post> posts = [
-    Post(
-      author: 'User1',
-      title: 'First Post',
-      description: 'This is the first post description.',
-      imageUrl: 'https://via.placeholder.com/150',
-      comments: ['Great post!', 'Thanks for sharing.'],
-    ),
-    Post(
-      author: 'User2',
-      title: 'Another Post',
-      description: 'This is another post description.',
-      imageUrl: 'https://via.placeholder.com/150',
-      comments: ['Interesting!', 'Very helpful.'],
-    ),
-    Post(
-      author: 'User2',
-      title: 'Another Post 2',
-      description: 'This is another post description.',
-      imageUrl: 'https://via.placeholder.com/150',
-      comments: ['Interesting!', 'Very helpful.'],
-    ),
-  ];
-
-  final TextEditingController _postController = TextEditingController();
   bool _isFabVisible = true;
+  late Future<List<Post>> _futurePosts;
 
-  void _addPost() {
-    // if (_postController.text.isNotEmpty) {
-    //   setState(() {
-    //     posts.add(
-    //       Post(
-    //         author: 'NewUser',
-    //         title: 'New Post',
-    //         description: _postController.text,
-    //         imageUrl: 'https://via.placeholder.com/150',
-    //         comments: [],
-    //       ),
-    //     );
-    //     _postController.clear();
-    //   });
-    // }
+  @override
+  void initState() {
+    super.initState();
+    _futurePosts = fetchPostsFromFirestore();
+  }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AddPostScreen(),
-      ),
-    );
+  Future<List<Post>> fetchPostsFromFirestore() async {
+    final List<Post> posts = [];
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('posts').get();
+      snapshot.docs.forEach((doc) {
+        posts.add(Post.fromFirestore(doc));
+      });
+    } catch (e) {
+      print('Error fetching posts: $e');
+    }
+    return posts;
   }
 
   @override
@@ -76,43 +49,54 @@ class _CommunityScreenState extends State<CommunityScreen> {
           }
           return true;
         },
-        child: Padding(
-          padding: const EdgeInsets.only(right: 8, left: 8),
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: posts.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                PostDetailScreen(post: posts[index]),
-                          ),
-                        );
-                      },
-                      child: PostCard(
-                        imageUrl: posts[index].imageUrl,
-                        userName: posts[index].author,
-                        location: 'Sri Lanka', // You can modify this as needed
-                        title: posts[index].title,
-                        description: posts[index].description,
-                        commentsCount: posts[index].comments.length,
+        child: FutureBuilder<List<Post>>(
+          future: _futurePosts,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error fetching posts'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('No posts available'));
+            }
+
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                Post post = snapshot.data![index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PostDetailScreen(post: post),
                       ),
                     );
                   },
-                ),
-              ),
-            ],
-          ),
+                  child: PostCard(
+                    imageUrl: post.imageUrl,
+                    userName: post.author,
+                    location: 'Sri Lanka', // You can modify this as needed
+                    title: post.title,
+                    description: post.description,
+                    commentsCount: post.comments.length,
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
       floatingActionButton: _isFabVisible
           ? FloatingActionButton(
-              onPressed: _addPost,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddPostScreen(),
+                  ),
+                );
+              },
               child: Icon(Icons.edit),
             )
           : null,
@@ -120,7 +104,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
   }
 }
 
+
 class Post {
+  final String id;
   final String author;
   final String title;
   final String description;
@@ -128,12 +114,25 @@ class Post {
   final List<String> comments;
 
   Post({
+    required this.id,
     required this.author,
     required this.title,
     required this.description,
     required this.imageUrl,
     required this.comments,
   });
+
+  factory Post.fromFirestore(DocumentSnapshot doc) {
+    Map data = doc.data() as Map<String, dynamic>;
+    return Post(
+      id: doc.id,
+      author: data['author'] ?? '',
+      title: data['title'] ?? '',
+      description: data['description'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',
+      comments: List<String>.from(data['comments'] ?? []),
+    );
+  }
 }
 
 class PostCard extends StatelessWidget {
@@ -238,3 +237,4 @@ class PostCard extends StatelessWidget {
     );
   }
 }
+
