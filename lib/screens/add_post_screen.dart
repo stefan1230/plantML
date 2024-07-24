@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 import 'dart:io';
 import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
 
@@ -58,9 +59,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Post'),
-        backgroundColor: Colors.green,
+      appBar: CommonAppBar(
+        title: 'Add Post',
+        leading: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

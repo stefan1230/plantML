@@ -26,7 +26,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
   Future<List<Post>> fetchPostsFromFirestore() async {
     final List<Post> posts = [];
     try {
-      QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('posts').get();
+      QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('posts').get();
       snapshot.docs.forEach((doc) {
         posts.add(Post.fromFirestore(doc));
       });
@@ -104,14 +105,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
   }
 }
 
-
 class Post {
   final String id;
   final String author;
   final String title;
   final String description;
   final String imageUrl;
-  final List<String> comments;
+  final List comments;
 
   Post({
     required this.id,
@@ -130,7 +130,7 @@ class Post {
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
-      comments: List<String>.from(data['comments'] ?? []),
+      comments: data['comments'] ?? [],
     );
   }
 }
@@ -237,4 +237,3 @@ class PostCard extends StatelessWidget {
     );
   }
 }
-

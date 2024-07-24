@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
-import 'package:plantdiseaseidentifcationml/screens/community_screen.dart';
-import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
+import 'package:plantdiseaseidentifcationml/models/plant.dart';
+import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
 
-class PostDetailScreen extends StatelessWidget {
-  final Post post;
+class PlantDetailScreen extends StatelessWidget {
+  final Plant plant;
   final TextEditingController _commentController = TextEditingController();
 
-  PostDetailScreen({required this.post});
+  PlantDetailScreen({required this.plant});
 
   void _addComment(BuildContext context) async {
     if (_commentController.text.isNotEmpty) {
       try {
-        await FirestoreService().addComment(post.id, _commentController.text);
+        await FirestoreService().addComment(
+          plant.id,
+          _commentController.text,
+          // user: 'Current User', // Replace with actual user data
+        );
         _commentController.clear();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Comment added')),
@@ -29,27 +33,26 @@ class PostDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(
-        title: post.title,
-        leading: true,
-      ),
+      appBar: CommonAppBar(title: plant.diagnosis),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(post.imageUrl,
+            Image.network(plant.imageUrl,
                 width: double.infinity, height: 200, fit: BoxFit.cover),
             const SizedBox(height: 8),
             Text(
-              post.title,
+              plant.diagnosis,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 24,
               ),
             ),
             const SizedBox(height: 8),
-            Text(post.description),
+            Text('Remedies: ${plant.remedies}'),
+            const SizedBox(height: 8),
+            Text('Prevention: ${plant.prevention}'),
             const SizedBox(height: 16),
             Text(
               'Comments:',
@@ -61,8 +64,8 @@ class PostDetailScreen extends StatelessWidget {
             Expanded(
               child: StreamBuilder<DocumentSnapshot>(
                 stream: FirebaseFirestore.instance
-                    .collection('posts')
-                    .doc(post.id)
+                    .collection('plants')
+                    .doc(plant.id)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -83,9 +86,8 @@ class PostDetailScreen extends StatelessWidget {
                           (comment['timestamp'] as Timestamp?)?.toDate();
                       return ListTile(
                         leading: CircleAvatar(
-                          backgroundImage: NetworkImage(comment['user']
-                                  ['imageUrl'] ??
-                              'https://via.placeholder.com/150'), // Replace with default image if necessary
+                          backgroundImage:
+                              NetworkImage(comment['userImageUrl']),
                         ),
                         title: Text(comment['text']),
                         subtitle: Text(

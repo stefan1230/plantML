@@ -3,13 +3,15 @@ import 'package:flutter_svg/svg.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
+  final bool leading;
 
-  const CommonAppBar({required this.title, Key? key}) : super(key: key);
+  const CommonAppBar({required this.title, Key? key, this.leading = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      // titleSpacing: ,
+      titleSpacing: leading ? 0 : 14,
       title: Align(
         alignment: Alignment.centerLeft,
         child: Text(
