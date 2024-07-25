@@ -4,6 +4,7 @@ class Plant {
   final String diagnosis;
   final String remedies;
   final String prevention;
+  final List<String> progressImages;
 
   Plant({
     required this.id,
@@ -11,6 +12,7 @@ class Plant {
     required this.diagnosis,
     required this.remedies,
     required this.prevention,
+    this.progressImages = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -20,6 +22,7 @@ class Plant {
       'diagnosis': diagnosis,
       'remedies': remedies,
       'prevention': prevention,
+      'progressImages': progressImages,
     };
   }
 
@@ -30,6 +33,7 @@ class Plant {
       diagnosis: map['diagnosis'] ?? '',
       remedies: map['remedies'] ?? '',
       prevention: map['prevention'] ?? '',
+      progressImages: List<String>.from(map['progressImages'] ?? []),
     );
   }
 }

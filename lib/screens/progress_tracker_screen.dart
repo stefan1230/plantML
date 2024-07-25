@@ -15,19 +15,11 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
   @override
   void initState() {
     super.initState();
-    // _addTestPlant();
+    // _addSampleData();
   }
 
-  Future<void> _addTestPlant() async {
-    Plant testPlant = Plant(
-      id: '1', // A unique ID for the plant
-      imageUrl: 'https://via.placeholder.com/150',
-      diagnosis: 'Chilli Corcospora Leaf Spot',
-      remedies: 'Complete',
-      prevention: 'Test Prevention',
-    );
-
-    await FirestoreService().addPlant(testPlant);
+  Future<void> _addSampleData() async {
+    await FirestoreService().addSampleData();
   }
 
   @override
@@ -55,8 +47,7 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => JourneyScreen(),
-                        // builder: (context) => PlantDetailScreen(plant: plant),
+                        builder: (context) => JourneyScreen(plant: plant),
                       ),
                     );
                   },
@@ -105,7 +96,7 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
                                 ),
                                 const SizedBox(height: 5),
                                 Text(
-                                  'Complete',
+                                  plant.remedies,
                                   style: TextStyle(
                                     color: Colors.green,
                                     fontSize: 12,
@@ -114,7 +105,7 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
                                 ),
                                 const SizedBox(height: 5),
                                 Text(
-                                  'Chilli Corcospora Leaf Spot',
+                                  plant.prevention,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.black87,

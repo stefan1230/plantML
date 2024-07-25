@@ -90,6 +90,28 @@ class FirestoreService {
     });
   }
 
+  // Stream<List<Plant>> getPlants() {
+  //   return plantsCollection.snapshots().map((snapshot) {
+  //     return snapshot.docs.map((doc) {
+  //       return Plant.fromMap(doc.data() as Map<String, dynamic>);
+  //     }).toList();
+  //   });
+  // }
+
+  // Future<void> addPlant(Plant plant) {
+  //   return plantsCollection.add(plant.toMap());
+  // }
+
+  Future<List<Post>> getPosts() async {
+    QuerySnapshot snapshot = await _db.collection('posts').get();
+    return snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
+  }
+
+
+  Future<void> addPlant(Plant plant) async {
+    await plantsCollection.add(plant.toMap());
+  }
+
   Stream<List<Plant>> getPlants() {
     return plantsCollection.snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -98,12 +120,59 @@ class FirestoreService {
     });
   }
 
-  Future<void> addPlant(Plant plant) {
-    return plantsCollection.add(plant.toMap());
+  Future<void> addProgressImage(String plantId, File image) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception("No user logged in");
+    }
+
+    String fileName = '${DateTime.now().millisecondsSinceEpoch}_${user.uid}.jpg';
+    TaskSnapshot snapshot = await _storage.ref().child('plants/$plantId/$fileName').putFile(image);
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+
+    await plantsCollection.doc(plantId).update({
+      'progressImages': FieldValue.arrayUnion([downloadUrl]),
+    });
   }
 
-  Future<List<Post>> getPosts() async {
-    QuerySnapshot snapshot = await _db.collection('posts').get();
-    return snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
+Future<void> addSampleData() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception("No user logged in");
+    }
+
+    List<Plant> samplePlants = [
+      Plant(
+        id: '1',
+        imageUrl: 'https://via.placeholder.com/150',
+        diagnosis: 'Chilli Corcospora Leaf Spot',
+        remedies: 'Complete',
+        prevention: 'Test Prevention',
+      ),
+      Plant(
+        id: '2',
+        imageUrl: 'https://via.placeholder.com/150',
+        diagnosis: 'Tomato Blight',
+        remedies: 'Complete',
+        prevention: 'Test Prevention',
+      ),
+    ];
+
+    for (Plant plant in samplePlants) {
+      DocumentReference plantRef = await plantsCollection.add(plant.toMap());
+
+      // Add sample progress images
+      List<String> progressImages = [
+        'https://via.placeholder.com/150/1',
+        'https://via.placeholder.com/150/2',
+        'https://via.placeholder.com/150/3',
+      ];
+
+      for (String imageUrl in progressImages) {
+        await plantRef.update({
+          'progressImages': FieldValue.arrayUnion([imageUrl]),
+        });
+      }
+    }
   }
 }

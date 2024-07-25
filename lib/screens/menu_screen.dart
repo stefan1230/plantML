@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 import 'package:plantdiseaseidentifcationml/screens/login_screen.dart';
+import 'package:plantdiseaseidentifcationml/screens/update_profile_screen.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -26,14 +27,27 @@ class _MenuScreenState extends State<MenuScreen> {
     }
   }
 
+  void _navigateToUpdateProfile(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const UpdateProfileScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: 'More'),
-      body: Center(
+      body: Padding(
+        padding: EdgeInsets.all(8),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Update Profile'),
+              onTap: () => _navigateToUpdateProfile(context),
+            ),
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Sign Out'),

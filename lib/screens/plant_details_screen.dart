@@ -117,24 +117,20 @@
 // }
 
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:timeline_tile/timeline_tile.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: JourneyScreen(),
-    );
-  }
-}
+import 'package:plantdiseaseidentifcationml/models/plant.dart';
+import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class JourneyScreen extends StatefulWidget {
+  final Plant plant;
+
+  JourneyScreen({required this.plant});
+
   @override
   _JourneyScreenState createState() => _JourneyScreenState();
 }
@@ -142,6 +138,7 @@ class JourneyScreen extends StatefulWidget {
 class _JourneyScreenState extends State<JourneyScreen> {
   late ScrollController _scrollController;
   bool _isFabVisible = true;
+  File? _image;
 
   @override
   void initState() {
@@ -156,6 +153,24 @@ class _JourneyScreenState extends State<JourneyScreen> {
     }
     if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
       if (!_isFabVisible) setState(() => _isFabVisible = true);
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      }
+    });
+  }
+
+  Future<void> _uploadProgressImage() async {
+    if (_image != null) {
+      await FirestoreService().addProgressImage(widget.plant.id, _image!);
+      setState(() {
+        _image = null;
+      });
     }
   }
 
@@ -174,54 +189,47 @@ class _JourneyScreenState extends State<JourneyScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.only(top: 8.0, left: 18, right: 18),
-        child: ListView(
-          controller: _scrollController,
+        child: Column(
           children: [
-            JourneyTile(
-              title: 'Moraine Lake',
-              date: 'Tuesday 20',
-              description: 'One of the many wonderful turquoise lakes in Alberta.',
-              imageUrl: 'https://example.com/moraine_lake.jpg',
-              isFirst: true,
+            Expanded(
+              child: StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance.collection('plants').doc(widget.plant.id).snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasData == false || !snapshot.data!.exists) {
+                    return Center(child: Text('${snapshot.data!.exists}'));
+                  }
+                  List progressImages = snapshot.data!['progressImages'] ?? [];
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemCount: progressImages.length,
+                    itemBuilder: (context, index) {
+                      String imageUrl = progressImages[index];
+                      return JourneyTile(
+                        title: 'Progress Image',
+                        date: 'Date', // Replace with the actual date if available
+                        description: 'Image ${index + 1}',
+                        imageUrl: imageUrl,
+                        isFirst: index == 0,
+                        isLast: index == progressImages.length - 1,
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-            JourneyTile(
-              title: 'Moraine Lake',
-              date: 'Tuesday 16',
-              description: 'One of the many wonderful turquoise lakes in Alberta.',
-              imageUrl: 'https://example.com/moraine_lake.jpg',
-            ),
-            JourneyTile(
-              title: 'Niagara Falls',
-              date: 'Wednesday 17',
-              description: 'Probably the most popular natural landmark in Canada that everyone...',
-              imageUrl: 'https://example.com/niagara_falls.jpg',
-            ),
-            JourneyTile(
-              title: 'Baffin Island',
-              date: 'Thursday 18',
-              description: 'Canada\'s largest island (5th in the world) is located in Nunavut.',
-              imageUrl: 'https://example.com/baffin_island.jpg',
-              isLast: false,
-            ),
-            JourneyTile(
-              title: 'Banff National Park',
-              date: 'Friday 19',
-              description: 'Known for its stunning mountain landscapes and diverse wildlife.',
-              imageUrl: 'https://example.com/banff_national_park.jpg',
-            ),
-            JourneyTile(
-              title: 'Lake Louise',
-              date: 'Saturday 20',
-              description: 'A glacial lake known for its crystal clear turquoise waters.',
-              imageUrl: 'https://example.com/lake_louise.jpg',
-            ),
-            JourneyTile(
-              title: 'Prince Edward Island',
-              date: 'Sunday 21',
-              description: 'Famous for its red sand beaches and the Anne of Green Gables house.',
-              imageUrl: 'https://example.com/prince_edward_island.jpg',
-              isLast: true,
-            ),
+            if (_image != null)
+              Column(
+                children: [
+                  Image.file(_image!, height: 200),
+                  ElevatedButton(
+                    onPressed: _uploadProgressImage,
+                    child: Text('Upload Progress Image'),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
@@ -230,9 +238,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
         duration: Duration(milliseconds: 300),
         child: _isFabVisible
             ? FloatingActionButton.extended(
-                onPressed: () {
-                  // Add progress action
-                },
+                onPressed: _pickImage,
                 icon: Icon(Icons.add),
                 label: Text('Add Progress'),
                 tooltip: 'Add Progress',
