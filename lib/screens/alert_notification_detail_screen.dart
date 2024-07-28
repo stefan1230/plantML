@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plantdiseaseidentifcationml/screens/alert_notification_screen.dart';
+import 'package:plantdiseaseidentifcationml/models/notification.dart';
 
 class DetailedNotificationScreen extends StatelessWidget {
   final NotificationItem notification;
@@ -23,7 +23,7 @@ class DetailedNotificationScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              notification.date,
+              '${notification.createdAt.toLocal()}',
               style: TextStyle(color: Colors.grey),
             ),
             SizedBox(height: 20),
@@ -33,7 +33,7 @@ class DetailedNotificationScreen extends StatelessWidget {
             ),
             SizedBox(height: 20),
             Text(
-              notification.details,
+              'Affected Areas: ${notification.affectedAreas.join(', ')}',
               style: TextStyle(fontSize: 16),
             ),
           ],

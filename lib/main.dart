@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,13 +9,13 @@ import 'package:plantdiseaseidentifcationml/screens/controller_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/login_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/register_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
-    // await FirebaseAuth.instance.useAuthEmulator('localhost');
     print('Firebase initialized successfully');
   } catch (e) {
     print('Failed to initialize Firebase: $e');

@@ -1,22 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
 import 'package:plantdiseaseidentifcationml/screens/alert_notification_detail_screen.dart';
 
+import '../models/notification.dart';
+
 class NotificationScreen extends StatelessWidget {
-  final List<NotificationItem> notifications = [
-    NotificationItem(
-      title: 'Blight Outbreak Alert',
-      description: 'A severe blight outbreak has been reported in your area. Take immediate action to protect your crops.',
-      date: 'July 25, 2024',
-      details: 'Detailed information about Blight Outbreak...',
-    ),
-    NotificationItem(
-      title: 'Powdery Mildew Warning',
-      description: 'Powdery mildew has been detected in nearby farms. Ensure your crops are not affected.',
-      date: 'July 24, 2024',
-      details: 'Detailed information about Powdery Mildew...',
-    ),
-    // Add more notifications as needed
-  ];
+  NotificationScreen({Key? key}) : super(key: key);
+
+  final FirestoreService _firestoreService = FirestoreService();
 
   @override
   Widget build(BuildContext context) {
@@ -24,25 +15,21 @@ class NotificationScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Disease Outbreak Notifications'),
       ),
-      body: ListView.builder(
-        itemCount: notifications.length,
-        itemBuilder: (context, index) {
-          final notification = notifications[index];
-          return InkWell(
-            onTap: () =>{
-              Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailedNotificationScreen(notification: notifications[index],),
-                      ),
-                    )
-            },
-            child: Card(
-              margin: EdgeInsets.all(10),
-              child: ListTile(
-                title: Text(notification.title),
-                subtitle: Text('${notification.description}\n${notification.date}'),
-                isThreeLine: true,
+      body: StreamBuilder<List<NotificationItem>>(
+        stream: _firestoreService.getAlerts(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No notifications available.'));
+          }
+          final notifications = snapshot.data!;
+          return ListView.builder(
+            itemCount: notifications.length,
+            itemBuilder: (context, index) {
+              final notification = notifications[index];
+              return InkWell(
                 onTap: () {
                   Navigator.push(
                     context,
@@ -51,25 +38,19 @@ class NotificationScreen extends StatelessWidget {
                     ),
                   );
                 },
-              ),
-            ),
+                child: Card(
+                  margin: EdgeInsets.all(10),
+                  child: ListTile(
+                    title: Text(notification.title),
+                    subtitle: Text('${notification.description}\n${notification.createdAt}'),
+                    isThreeLine: true,
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
     );
   }
-}
-
-class NotificationItem {
-  final String title;
-  final String description;
-  final String date;
-  final String details;
-
-  NotificationItem({
-    required this.title,
-    required this.description,
-    required this.date,
-    required this.details,
-  });
 }

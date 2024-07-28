@@ -76,20 +76,20 @@ class DiagnosisScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 16),
-              Row(
-                children: [
-                  Icon(Icons.audiotrack, color: Colors.blue),
-                  SizedBox(width: 8),
-                  Text(
-                    'Listen',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-              Divider(),
+              // Row(
+              //   children: [
+              //     Icon(Icons.audiotrack, color: Colors.blue),
+              //     SizedBox(width: 8),
+              //     Text(
+              //       'Listen',
+              //       style: TextStyle(
+              //         color: Colors.blue,
+              //         fontSize: 16,
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // Divider(),
               Row(
                 children: [
                   Icon(Icons.description, color: Colors.black),

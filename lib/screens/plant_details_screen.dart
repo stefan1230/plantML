@@ -88,7 +88,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Journey'),
+        title: Text('Diagnosis'),
       ),
       body: Padding(
         padding: const EdgeInsets.only(top: 8.0, left: 18, right: 18),
@@ -148,7 +148,7 @@ class _JourneyScreenState extends State<JourneyScreen> {
           onPressed: () {
             // Confirm journey action
           },
-          child: Text('Confirm Journey'),
+          child: Text('Complete  Diagnosis'),
         ),
       ),
     );

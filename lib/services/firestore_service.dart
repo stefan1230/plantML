@@ -1,32 +1,26 @@
-// ignore_for_file: avoid_print
-
-import 'dart:io';
-
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:plantdiseaseidentifcationml/models/plant.dart';
-import 'package:plantdiseaseidentifcationml/screens/community_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
+import 'package:plantdiseaseidentifcationml/models/plant.dart';
+
+import '../models/notification.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  final CollectionReference plantsCollection =
-      FirebaseFirestore.instance.collection('plants');
+  final CollectionReference plantsCollection = FirebaseFirestore.instance.collection('plants');
+  final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
 
-  Future<void> addPost(
-      String author, String title, String description, String imagePath) async {
-    // print(_storage);
+  Future<void> addPost(String author, String title, String description, String imagePath) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
-      // Upload image to Firebase Storage
       File file = File(imagePath);
       String fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
-      TaskSnapshot snapshot =
-          await _storage.ref().child('post_images/$fileName').putFile(file);
+      TaskSnapshot snapshot = await _storage.ref().child('post_images/$fileName').putFile(file);
       String downloadUrl = await snapshot.ref.getDownloadURL();
-      // Save post data to Firestore
       await _db.collection('posts').add({
         'author': user!.displayName,
         'title': title,
@@ -41,35 +35,6 @@ class FirestoreService {
     }
   }
 
-  //   Future<List<Post>> fetchPosts() async {
-  //   try {
-  //     QuerySnapshot snapshot = await _db.collection('posts').get();
-  //     return snapshot.docs.map((doc) {
-  //       return Post(
-  //         author: doc['author'],
-  //         title: doc['title'],
-  //         description: doc['description'],
-  //         imageUrl: doc['imageUrl'],
-  //         comments: List<String>.from(doc['comments']),
-  //       );
-  //     }).toList();
-  //   } catch (e) {
-  //     print('Error fetching posts: $e');
-  //     throw e;
-  //   }
-  // }
-
-  // Future<void> addComment(String postId, String comment) async {
-  //   try {
-  //     DocumentReference postRef = _db.collection('posts').doc(postId);
-  //     await postRef.update({
-  //       'comments': FieldValue.arrayUnion([comment])
-  //     });
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
   Future<void> addComment(String postId, String commentText) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -82,31 +47,13 @@ class FirestoreService {
         'uid': user.uid,
         'name': user.displayName ?? user.email,
       },
-      // 'timestamp': FieldValue.serverTimestamp(),
+      'timestamp': FieldValue.serverTimestamp(),
     };
 
     await _db.collection('posts').doc(postId).update({
       'comments': FieldValue.arrayUnion([commentData])
     });
   }
-
-  // Stream<List<Plant>> getPlants() {
-  //   return plantsCollection.snapshots().map((snapshot) {
-  //     return snapshot.docs.map((doc) {
-  //       return Plant.fromMap(doc.data() as Map<String, dynamic>);
-  //     }).toList();
-  //   });
-  // }
-
-  // Future<void> addPlant(Plant plant) {
-  //   return plantsCollection.add(plant.toMap());
-  // }
-
-  Future<List<Post>> getPosts() async {
-    QuerySnapshot snapshot = await _db.collection('posts').get();
-    return snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
-  }
-
 
   Future<void> addPlant(Plant plant) async {
     await plantsCollection.add(plant.toMap());
@@ -135,7 +82,7 @@ class FirestoreService {
     });
   }
 
-Future<void> addSampleData() async {
+  Future<void> addSampleData() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception("No user logged in");
@@ -175,4 +122,95 @@ Future<void> addSampleData() async {
       }
     }
   }
+
+
+  Future<void> addSampleNotifications() async {
+    final CollectionReference alertsCollection = _db.collection('diseaseAlerts');
+    List<Map<String, dynamic>> sampleAlerts = [
+      {
+        'title': 'Powdery Mildew Outbreak',
+        'description': 'There is an outbreak of Powdery Mildew in the following areas...',
+        'affectedAreas': ['Area1', 'Area2'],
+        'createdAt': FieldValue.serverTimestamp(),
+      },
+      {
+        'title': 'Blight Outbreak Alert',
+        'description': 'A severe blight outbreak has been reported in your area. Take immediate action to protect your crops.',
+        'affectedAreas': ['Area3', 'Area4'],
+        'createdAt': FieldValue.serverTimestamp(),
+      },
+    ];
+
+    for (var alert in sampleAlerts) {
+      await alertsCollection.add(alert);
+    }
+  }
+
+  Stream<List<NotificationItem>> getAlerts() {
+    return _db.collection('diseaseAlerts').snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return NotificationItem(
+          id: doc.id,
+          title: doc['title'],
+          description: doc['description'],
+          affectedAreas: List<String>.from(doc['affectedAreas']),
+          createdAt: (doc['createdAt'] as Timestamp).toDate(),
+        );
+      }).toList();
+    });
+  }
+
+  Future<void> addPlantDiseases() async {
+  final CollectionReference diseasesCollection = FirebaseFirestore.instance.collection('plantDiseases');
+
+  List<Map<String, dynamic>> diseaseData = [
+    {
+      'diseaseName': 'Powdery Mildew',
+      'description': 'Powdery mildew is a fungal disease that affects a wide range of plants. It is characterized by white powdery spots on leaves and stems.',
+      'prevention': [
+        'Ensure good air circulation around plants',
+        'Avoid overhead watering',
+        'Plant resistant varieties'
+      ],
+      'treatment': [
+        'Apply fungicidal sprays containing sulfur or potassium bicarbonate',
+        'Remove and destroy infected plant parts',
+        'Use neem oil or horticultural oils'
+      ]
+    },
+    {
+      'diseaseName': 'Downy Mildew',
+      'description': 'Downy mildew is a disease caused by water molds. It is characterized by yellowish or pale green spots on the upper surface of leaves and white, downy growth on the underside.',
+      'prevention': [
+        'Improve air circulation by proper spacing of plants',
+        'Water plants early in the day to allow leaves to dry',
+        'Remove plant debris from the garden'
+      ],
+      'treatment': [
+        'Apply fungicides containing copper or mancozeb',
+        'Remove and destroy infected plant parts',
+        'Use resistant plant varieties'
+      ]
+    },
+    {
+      'diseaseName': 'Rust',
+      'description': 'Rust is a fungal disease that appears as orange, yellow, or brown pustules on leaves and stems. It can severely affect plant health and yield.',
+      'prevention': [
+        'Plant resistant varieties',
+        'Avoid overhead watering',
+        'Ensure proper plant spacing for air circulation'
+      ],
+      'treatment': [
+        'Apply fungicides containing sulfur or copper',
+        'Remove and destroy infected plant parts',
+        'Use neem oil or other organic fungicides'
+      ]
+    }
+  ];
+
+  for (var disease in diseaseData) {
+    await diseasesCollection.add(disease);
+  }
+}
+
 }
