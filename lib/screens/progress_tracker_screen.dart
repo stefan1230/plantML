@@ -15,19 +15,11 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
   @override
   void initState() {
     super.initState();
-    // _addTestPlant();
+    // _addSampleData();
   }
 
-  Future<void> _addTestPlant() async {
-    Plant testPlant = Plant(
-      id: '1', // A unique ID for the plant
-      imageUrl: 'https://via.placeholder.com/150',
-      diagnosis: 'Test Diagnosis',
-      remedies: 'Test Remedies',
-      prevention: 'Test Prevention',
-    );
-
-    await FirestoreService().addPlant(testPlant);
+  Future<void> _addSampleData() async {
+    await FirestoreService().addSampleData();
   }
 
   @override
@@ -44,24 +36,91 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
             return Center(child: Text('No plants diagnosed yet.'));
           }
           final plants = snapshot.data!;
-          return ListView.builder(
-            itemCount: plants.length,
-            itemBuilder: (context, index) {
-              final plant = plants[index];
-              return ListTile(
-                leading: Image.network(plant.imageUrl, fit: BoxFit.cover),
-                title: Text(plant.diagnosis),
-                subtitle: Text('Remedies: ${plant.remedies}'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PlantDetailScreen(plant: plant),
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView.builder(
+              itemCount: plants.length,
+              itemBuilder: (context, index) {
+                final plant = plants[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => JourneyScreen(plant: plant),
+                      ),
+                    );
+                  },
+                  child: Card(
+                    margin: EdgeInsets.all(10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                  );
-                },
-              );
-            },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              plant.imageUrl,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      plant.diagnosis,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      '25 Jul', // Replace with dynamic date
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  plant.remedies,
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  plant.prevention,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           );
         },
       ),

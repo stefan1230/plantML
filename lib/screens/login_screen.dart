@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -62,39 +63,48 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _handleRegister() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-      try {
-        UserCredential result = await _auth.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-        User? user = result.user;
+Future<void> _handleRegister() async {
+  if (_formKey.currentState!.validate()) {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      User? user = result.user;
 
-        if (user != null) {
-          await user.updateProfile(
-              displayName:
-                  "${_firstNameController.text} ${_lastNameController.text}");
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const ControllerScreen()),
-          );
-        }
-      } catch (e) {
-        print(e);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration failed: ${e.toString()}')),
+      if (user != null) {
+        await user.updateProfile(
+          displayName: "${_firstNameController.text} ${_lastNameController.text}"
         );
-      } finally {
-        setState(() {
-          _isLoading = false;
+        
+        // Create a user document in Firestore
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'firstName': _firstNameController.text,
+          'lastName': _lastNameController.text,
+          'email': _emailController.text.trim(),
+          'createdAt': FieldValue.serverTimestamp(),
         });
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const ControllerScreen()),
+        );
       }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Registration failed: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {

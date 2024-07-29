@@ -13,14 +13,6 @@ class AuthService {
     try {
       await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
-
-      // await Future.delayed(const Duration(seconds: 1));
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (BuildContext context) => const Home()
-      //   )
-      // );
     } on FirebaseAuthException catch (e) {
       String message = '';
       if (e.code == 'weak-password') {
@@ -29,14 +21,14 @@ class AuthService {
         message = 'An account already exists with that email.';
       }
       print(e);
-      // Fluttertoast.showToast(
-      //   msg: message,
-      //   toastLength: Toast.LENGTH_LONG,
-      //   gravity: ToastGravity.SNACKBAR,
-      //   backgroundColor: Colors.black54,
-      //   textColor: Colors.white,
-      //   fontSize: 14.0,
-      // );
+      Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.SNACKBAR,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
     } catch (e) {}
   }
 
