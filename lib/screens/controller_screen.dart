@@ -178,6 +178,7 @@
 //   }
 // }
 
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -187,6 +188,7 @@ import 'package:plantdiseaseidentifcationml/screens/home_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/menu_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/progress_tracker_screen.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:camera/camera.dart';
 
 class ControllerScreen extends StatefulWidget {
   const ControllerScreen({super.key});
@@ -197,6 +199,7 @@ class ControllerScreen extends StatefulWidget {
 
 class _ControllerScreenState extends State<ControllerScreen> {
   int _selectedIndex = 0;
+  CameraController? _cameraController;
   static final List<Widget> _widgetOptions = <Widget>[
     const HomeScreen(),
     const ProgressTrackerScreen(),
@@ -204,6 +207,32 @@ class _ControllerScreenState extends State<ControllerScreen> {
     const CommunityScreen(),
     const MenuScreen(),
   ];
+
+  @override
+  void dispose() {
+    _cameraController?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _openCamera() async {
+    final cameras = await availableCameras();
+    final firstCamera = cameras.first;
+
+    _cameraController = CameraController(
+      firstCamera,
+      ResolutionPreset.high,
+    );
+
+    await _cameraController!.initialize();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            CameraScreen(cameraController: _cameraController!),
+      ),
+    );
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -232,7 +261,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 leading: Icon(Icons.photo_camera),
                 title: Text('Camera'),
                 onTap: () {
-                  // _pickImage(ImageSource.camera);
+                  _openCamera();
                   Navigator.of(context).pop();
                 },
               ),
@@ -339,6 +368,91 @@ class _ControllerScreenState extends State<ControllerScreen> {
               color:
                   _selectedIndex == index ? AppColors.MainGreen : Colors.grey,
               fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CameraScreen extends StatefulWidget {
+  final CameraController cameraController;
+
+  CameraScreen({required this.cameraController});
+
+  @override
+  _CameraScreenState createState() => _CameraScreenState();
+}
+
+class _CameraScreenState extends State<CameraScreen> {
+  XFile? _imageFile;
+
+  Future<void> _captureImage() async {
+    try {
+      final image = await widget.cameraController.takePicture();
+      setState(() {
+        _imageFile = image;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          CameraPreview(widget.cameraController),
+          Positioned(
+            bottom: 25,
+            left: 0,
+            right: 0,
+            child: Column(
+              children: [
+                if (_imageFile != null)
+                  Image.file(
+                    File(_imageFile!.path),
+                    height: 100,
+                    width: 100,
+                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.photo_library,
+                          color: Colors.white, size: 30),
+                      onPressed: () {
+                        // Handle gallery action
+                      },
+                    ),
+                    FloatingActionButton(
+                      onPressed: _captureImage,
+                      backgroundColor: Colors.white,
+                      child: Icon(Icons.camera_alt, color: Colors.black),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.help_outline,
+                          color: Colors.white, size: 30),
+                      onPressed: () {
+                        // Handle help action
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Center(
+            child: Container(
+              height: 200,
+              width: 200,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white, width: 2),
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ],
