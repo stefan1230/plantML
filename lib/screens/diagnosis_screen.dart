@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+// import 'package:carousel_slider/carousel_slider.dart';
 
 class DiagnosisScreen extends StatelessWidget {
   final List<String> imageUrls = [
@@ -50,24 +50,24 @@ class DiagnosisScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 16),
-              CarouselSlider(
-                options: CarouselOptions(
-                  height: 200,
-                  enlargeCenterPage: true,
-                  enableInfiniteScroll: false,
-                  initialPage: 0,
-                ),
-                items: imageUrls.map((url) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      url,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                    ),
-                  );
-                }).toList(),
-              ),
+              // CarouselSlider(
+              //   options: CarouselOptions(
+              //     height: 200,
+              //     enlargeCenterPage: true,
+              //     enableInfiniteScroll: false,
+              //     initialPage: 0,
+              //   ),
+              //   items: imageUrls.map((url) {
+              //     return ClipRRect(
+              //       borderRadius: BorderRadius.circular(8),
+              //       child: Image.network(
+              //         url,
+              //         fit: BoxFit.cover,
+              //         width: double.infinity,
+              //       ),
+              //     );
+              //   }).toList(),
+              // ),
               SizedBox(height: 8),
               Text(
                 '3 photos',

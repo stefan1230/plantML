@@ -12,6 +12,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       titleSpacing: leading ? 0 : 14,
+      backgroundColor: Color(0xffF7F9F8),
       title: Align(
         alignment: Alignment.centerLeft,
         child: Text(
