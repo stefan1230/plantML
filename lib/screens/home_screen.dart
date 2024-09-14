@@ -2,36 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:plantdiseaseidentifcationml/app_color.dart';
 import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CommonAppBar(title: 'Home'),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Banner
-              // const Card(
-              // color: Colors.white,
-              // surfaceTintColor: Colors.white,
-              // elevation: 0.3,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Welcome Banner
+            // const Card(
+            // color: Colors.white,
+            // surfaceTintColor: Colors.white,
+            // elevation: 0.3,
 
-              ListTile(
-                title: Text(
-                  'Welcome back!',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text('Ready to take care of your plants?'),
+            ListTile(
+              title: Text(
+                'Welcome back!',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              // ),
-              const SizedBox(height: 10),
+              subtitle: Text('Ready to take care of your plants?'),
+            ),
+            // ),
 
-              // Quick Access Buttons
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+            // Quick Access Buttons
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20.0),
                 child: Row(
                   children: [
                     ElevatedButton.icon(
@@ -81,10 +87,13 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+            ),
+            const SizedBox(height: 0),
 
-              // Latest News/Updates
-              const Card(
+            // Latest News/Updates
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Card(
                 color: Colors.white,
                 surfaceTintColor: Colors.white,
                 elevation: 0.3,
@@ -94,25 +103,37 @@ class HomeScreen extends StatelessWidget {
                   trailing: Icon(Icons.warning, color: Colors.red),
                 ),
               ),
-              const SizedBox(height: 20),
+            ),
+            const SizedBox(height: 5),
 
-              // Recent Activity
-              const Text('Recent Activity',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const ListTile(
-                leading: Icon(Icons.history),
-                title: Text('Tomato Blight Detected'),
-                subtitle: Text('2 days ago'),
+            // Recent Activity
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Recent Activity',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  ListTile(
+                    leading: Icon(Icons.history),
+                    title: Text('Tomato Blight Detected'),
+                    subtitle: Text('2 days ago'),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.history),
+                    title: Text('New post in Community Forum'),
+                    subtitle: Text('1 day ago'),
+                  ),
+                ],
               ),
-              const ListTile(
-                leading: Icon(Icons.history),
-                title: Text('New post in Community Forum'),
-                subtitle: Text('1 day ago'),
-              ),
-              const SizedBox(height: 0),
+            ),
 
-              // Weather Information
-              const Card(
+            // Weather Information
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Card(
                 color: Colors.white,
                 surfaceTintColor: Colors.white,
                 elevation: 0.3,
@@ -122,9 +143,13 @@ class HomeScreen extends StatelessWidget {
                   subtitle: Text('Sunny, 25°C'),
                 ),
               ),
+            ),
 
-              // Tips and Tricks
-              const Card(
+            // Tips and Tricks
+            const SizedBox(height: 5),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Card(
                 color: Colors.white,
                 surfaceTintColor: Colors.white,
                 elevation: 0.3,
@@ -134,26 +159,36 @@ class HomeScreen extends StatelessWidget {
                       'Ensure good air circulation around plants to prevent fungal diseases.'),
                 ),
               ),
-              // const SizedBox(height: 5),
+            ),
+            // const SizedBox(height: 5),
 
-              const SizedBox(height: 10),
+            const SizedBox(height: 15),
 
-              // Statistics and Achievements
-              const Text('Your Stats',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const ListTile(
-                leading: Icon(Icons.assessment),
-                title: Text('Plants Scanned'),
-                subtitle: Text('15 plants'),
+            // Statistics and Achievements
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Your Stats',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  ListTile(
+                    leading: Icon(Icons.assessment),
+                    title: Text('Plants Scanned'),
+                    subtitle: Text('15 plants'),
+                  ),
+                ],
               ),
-              // const ListTile(
-              //   leading: Icon(Icons.stars),
-              //   title: Text('Achievements'),
-              //   subtitle: Text('5 badges earned'),
-              // ),
-              const SizedBox(height: 50),
-            ],
-          ),
+            ),
+            // const ListTile(
+            //   leading: Icon(Icons.stars),
+            //   title: Text('Achievements'),
+            //   subtitle: Text('5 badges earned'),
+            // ),
+            const SizedBox(height: 50),
+          ],
         ),
       ),
     );
