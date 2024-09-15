@@ -25,19 +25,21 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'Progress Tracker'),
+      backgroundColor: const Color(0xffffffff),
+      appBar: const CommonAppBar(title: 'Progress Tracker'),
       body: StreamBuilder<List<Plant>>(
         stream: FirestoreService().getPlants(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No plants diagnosed yet.'));
+            return const Center(child: Text('No plants diagnosed yet.'));
           }
           final plants = snapshot.data!;
           return Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding:
+                const EdgeInsets.only(bottom: 0.0, right: 8, left: 8, top: 0),
             child: ListView.builder(
               itemCount: plants.length,
               itemBuilder: (context, index) {
@@ -52,7 +54,9 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
                     );
                   },
                   child: Card(
-                    margin: EdgeInsets.all(10),
+                    elevation: 0,
+                    // margin: const EdgeInsets.all(10),
+                    color: const Color(0xffF7F7F7),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -76,16 +80,17 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       plant.diagnosis,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                       ),
                                     ),
-                                    Text(
+                                    const Text(
                                       '25 Jul', // Replace with dynamic date
                                       style: TextStyle(
                                         fontSize: 12,
@@ -97,7 +102,7 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
                                 const SizedBox(height: 5),
                                 Text(
                                   plant.remedies,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.green,
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
@@ -106,7 +111,7 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
                                 const SizedBox(height: 5),
                                 Text(
                                   plant.prevention,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     color: Colors.black87,
                                   ),

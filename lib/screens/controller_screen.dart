@@ -64,7 +64,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
     showMaterialModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
-        child: Container(
+        child: SizedBox(
           height: 150,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -125,10 +125,13 @@ class _ControllerScreenState extends State<ControllerScreen> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: BottomAppBar(
-          surfaceTintColor: Color.fromARGB(255, 255, 255, 255),
-          shape: CircularNotchedRectangle(),
+          // surfaceTintColor: const Color.fromARGB(255, 175, 47, 47),
+          color: const Color(0xffffffff),
+          shape: const CircularNotchedRectangle(),
           notchMargin: 5,
-          child: Container(
+          elevation: 8,
+          shadowColor: Colors.black.withOpacity(1),
+          child: SizedBox(
             height: 50, // Reduced height for the bottom navigation bar
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -142,7 +145,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                         'assets/plant-growth.svg', 'Progress'),
                   ],
                 ),
-                SizedBox(width: 40), // This space for the FAB
+                const SizedBox(width: 40),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[

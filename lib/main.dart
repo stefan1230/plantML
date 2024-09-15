@@ -30,11 +30,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.MainGreen),
-        scaffoldBackgroundColor:
-            Color.fromARGB(255, 218, 219, 240).withOpacity(0.2),
+        // colorScheme: ColorScheme.fromSeed(seedColor: AppColors.MainGreen),
+        // scaffoldBackgroundColor:
+        //     Color.fromARGB(255, 218, 219, 240).withOpacity(0.2),
         // textTheme: GoogleFonts.ralewayTextTheme(Theme.of(context).textTheme),
-        textTheme: GoogleFonts.ralewayTextTheme(Theme.of(context).textTheme),
+        textTheme: GoogleFonts.cabinTextTheme(Theme.of(context).textTheme),
         useMaterial3: true,
       ),
       home: AuthWrapper(),

@@ -38,8 +38,16 @@ class PostDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(post.imageUrl,
-                width: double.infinity, height: 200, fit: BoxFit.cover),
+            ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(12.0), // Adjust the radius as needed
+              child: Image.network(
+                post.imageUrl,
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+              ),
+            ),
             const SizedBox(height: 8),
             Text(
               post.title,

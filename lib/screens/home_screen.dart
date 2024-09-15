@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:plantdiseaseidentifcationml/app_color.dart';
 import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 
@@ -13,7 +14,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CommonAppBar(title: 'Home'),
+      backgroundColor: const Color(0xffffffff),
+      // appBar: const CommonAppBar(title: ''),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -23,10 +25,12 @@ class _HomeScreenState extends State<HomeScreen> {
             // color: Colors.white,
             // surfaceTintColor: Colors.white,
             // elevation: 0.3,
-
-            ListTile(
+            const SizedBox(
+              height: 50,
+            ),
+            const ListTile(
               title: Text(
-                'Welcome back!',
+                'Welcome back! 👋 ',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               subtitle: Text('Ready to take care of your plants?'),
@@ -91,19 +95,49 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 0),
 
             // Latest News/Updates
-            const Padding(
-              padding: EdgeInsets.all(8.0),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Card(
-                color: Colors.white,
+                color: const Color(0xffFBF1E7),
                 surfaceTintColor: Colors.white,
-                elevation: 0.3,
+                elevation: 0,
                 child: ListTile(
-                  title: Text('Latest Disease Alerts'),
-                  subtitle: Text('Blight outbreak reported in your area.'),
-                  trailing: Icon(Icons.warning, color: Colors.red),
+                  title: const Text('Latest Disease Alerts'),
+                  subtitle:
+                      const Text('Blight outbreak reported in your area.'),
+                  trailing: Container(
+                    padding: const EdgeInsets.all(8.0), // Space around the icon
+                    decoration: const BoxDecoration(
+                        shape: BoxShape.circle, color: Colors.white),
+                    child: const Icon(
+                      Icons.warning,
+                      color: Colors.red,
+                    ),
+                  ),
                 ),
               ),
             ),
+
+            // const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Card(
+                color: const Color(0xffE0F8E0), // Light green background
+                elevation: 0.3,
+                child: ListTile(
+                  title: const Text('Plant Care Tips'),
+                  subtitle: const Text(
+                    'Ensure good air circulation around plants to prevent fungal diseases.',
+                  ),
+                  trailing: SvgPicture.asset(
+                    'assets/plant_pot.svg', // Path to your SVG image in the assets folder
+                    width: 40, // Set the width of the SVG image
+                    height: 40, // Set the height of the SVG image
+                  ),
+                ),
+              ),
+            ),
+
             const SizedBox(height: 5),
 
             // Recent Activity
@@ -131,35 +165,44 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             // Weather Information
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Card(
-                color: Colors.white,
-                surfaceTintColor: Colors.white,
-                elevation: 0.3,
-                child: ListTile(
-                  leading: Icon(Icons.wb_sunny),
-                  title: Text('Current Weather'),
-                  subtitle: Text('Sunny, 25°C'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xffFFE9A5).withOpacity(0.3),
+                      const Color(0xffFFD700).withOpacity(0.3)
+                    ], // Define gradient colors here
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: const BorderRadius.all(Radius.circular(
+                      10.0)), // To give the same rounded corners as a card
+                ),
+                child: Card(
+                  color: Colors
+                      .transparent, // Make the card's background transparent to show the gradient
+                  elevation: 0,
+                  child: ListTile(
+                    title: const Text('Current Weather'),
+                    subtitle: const Text('Sunny, 25°C'),
+                    trailing: Container(
+                      padding:
+                          const EdgeInsets.all(8.0), // Space around the icon
+                      decoration: const BoxDecoration(
+                          shape: BoxShape.circle, color: Colors.white),
+                      child: const Icon(
+                        Icons.wb_sunny,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
 
             // Tips and Tricks
-            const SizedBox(height: 5),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Card(
-                color: Colors.white,
-                surfaceTintColor: Colors.white,
-                elevation: 0.3,
-                child: ListTile(
-                  title: Text('Plant Care Tips'),
-                  subtitle: Text(
-                      'Ensure good air circulation around plants to prevent fungal diseases.'),
-                ),
-              ),
-            ),
+
             // const SizedBox(height: 5),
 
             const SizedBox(height: 15),
