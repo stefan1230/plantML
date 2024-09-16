@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
   const UpdateProfileScreen({super.key});
@@ -52,8 +53,9 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Update Profile'),
+      backgroundColor: const Color(0xffffffff),
+      appBar: CommonAppBar(
+        title: 'Update Profile',
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

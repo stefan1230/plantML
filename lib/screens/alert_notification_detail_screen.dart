@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 import 'package:plantdiseaseidentifcationml/models/notification.dart';
 
 class DetailedNotificationScreen extends StatelessWidget {
@@ -9,8 +10,9 @@ class DetailedNotificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(notification.title),
+      backgroundColor: const Color(0xffffffff),
+      appBar: CommonAppBar(
+        title: notification.title,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -19,7 +21,7 @@ class DetailedNotificationScreen extends StatelessWidget {
           children: [
             Text(
               notification.title,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
             Text(
@@ -29,7 +31,7 @@ class DetailedNotificationScreen extends StatelessWidget {
             SizedBox(height: 20),
             Text(
               notification.description,
-              style: TextStyle(fontSize: 18),
+              style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 20),
             Text(

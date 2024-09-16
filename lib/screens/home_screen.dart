@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:plantdiseaseidentifcationml/app_color.dart';
 import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
+import 'package:plantdiseaseidentifcationml/screens/community_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,9 +32,12 @@ class _HomeScreenState extends State<HomeScreen> {
             const ListTile(
               title: Text(
                 'Welcome back! 👋 ',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              subtitle: Text('Ready to take care of your plants?'),
+              subtitle: Text('Ready to take care of your plants?',
+                  style: TextStyle(
+                    fontSize: 12,
+                  )),
             ),
             // ),
 
@@ -102,9 +106,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 surfaceTintColor: Colors.white,
                 elevation: 0,
                 child: ListTile(
-                  title: const Text('Latest Disease Alerts'),
-                  subtitle:
-                      const Text('Blight outbreak reported in your area.'),
+                  title: const Text(
+                    'Latest Disease Alerts',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: const Text(
+                    'Blight outbreak reported in your area.',
+                    style: TextStyle(fontSize: 12),
+                  ),
                   trailing: Container(
                     padding: const EdgeInsets.all(8.0), // Space around the icon
                     decoration: const BoxDecoration(
@@ -125,9 +134,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: const Color(0xffE0F8E0), // Light green background
                 elevation: 0.3,
                 child: ListTile(
-                  title: const Text('Plant Care Tips'),
+                  title: const Text(
+                    'Plant Care Tips',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
                   subtitle: const Text(
                     'Ensure good air circulation around plants to prevent fungal diseases.',
+                    style: TextStyle(fontSize: 12),
                   ),
                   trailing: SvgPicture.asset(
                     'assets/plant_pot.svg', // Path to your SVG image in the assets folder
@@ -142,23 +155,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // Recent Activity
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.0),
+              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Recent Activity',
                       style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ListTile(
                     leading: Icon(Icons.history),
-                    title: Text('Tomato Blight Detected'),
-                    subtitle: Text('2 days ago'),
+                    title: Text('Tomato Blight Detected',
+                        style: TextStyle(fontSize: 14)),
+                    subtitle:
+                        Text('2 days ago', style: TextStyle(fontSize: 12)),
                   ),
                   ListTile(
                     leading: Icon(Icons.history),
-                    title: Text('New post in Community Forum'),
-                    subtitle: Text('1 day ago'),
+                    title: Text('New post in Community Forum',
+                        style: TextStyle(fontSize: 14)),
+                    subtitle: Text('1 day ago', style: TextStyle(fontSize: 12)),
                   ),
                 ],
               ),
@@ -185,8 +201,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       .transparent, // Make the card's background transparent to show the gradient
                   elevation: 0,
                   child: ListTile(
-                    title: const Text('Current Weather'),
-                    subtitle: const Text('Sunny, 25°C'),
+                    title: const Text('Current Weather',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold)),
+                    subtitle: const Text('Sunny, 25°C',
+                        style: TextStyle(fontSize: 12)),
                     trailing: Container(
                       padding:
                           const EdgeInsets.all(8.0), // Space around the icon
@@ -216,11 +235,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text('Your Stats',
                       style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ListTile(
                     leading: Icon(Icons.assessment),
-                    title: Text('Plants Scanned'),
-                    subtitle: Text('15 plants'),
+                    title:
+                        Text('Plants Scanned', style: TextStyle(fontSize: 14)),
+                    subtitle: Text('15 plants', style: TextStyle(fontSize: 12)),
                   ),
                 ],
               ),

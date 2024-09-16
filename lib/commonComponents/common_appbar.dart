@@ -19,7 +19,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: Text(
           title,
           style: const TextStyle(
-              color: Colors.black87, fontWeight: FontWeight.w600),
+              color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 18),
         ),
       ),
       actions: [

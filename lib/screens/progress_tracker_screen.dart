@@ -87,7 +87,7 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
                                       plant.diagnosis,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                        fontSize: 14,
                                       ),
                                     ),
                                     const Text(

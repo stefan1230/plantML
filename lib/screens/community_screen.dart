@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:plantdiseaseidentifcationml/screens/add_post_screen.dart';
 import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 import 'package:plantdiseaseidentifcationml/screens/post_detail_screen.dart';
@@ -14,6 +15,7 @@ class CommunityScreen extends StatefulWidget {
 }
 
 class _CommunityScreenState extends State<CommunityScreen> {
+  GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   bool _isFabVisible = true;
   late Future<List<Post>> _futurePosts;
 
@@ -40,6 +42,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xffffffff),
       appBar: CommonAppBar(title: 'Community'),
       body: NotificationListener<UserScrollNotification>(
         onNotification: (notification) {
@@ -61,29 +64,41 @@ class _CommunityScreenState extends State<CommunityScreen> {
               return Center(child: Text('No posts available'));
             }
 
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                Post post = snapshot.data![index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PostDetailScreen(post: post),
-                      ),
-                    );
-                  },
-                  child: PostCard(
+            return Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  Post post = snapshot.data![index];
+                  return CardWidget(
                     imageUrl: post.imageUrl,
                     userName: post.author,
                     location: 'Sri Lanka', // You can modify this as needed
                     title: post.title,
                     description: post.description,
                     commentsCount: post.comments.length,
-                  ),
-                );
-              },
+                    post: post,
+                  );
+                  // return GestureDetector(
+                  //   onTap: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //         builder: (context) => PostDetailScreen(post: post),
+                  //       ),
+                  //     );
+                  //   },
+                  //   child: PostCard(
+                  //     imageUrl: post.imageUrl,
+                  //     userName: post.author,
+                  //     location: 'Sri Lanka', // You can modify this as needed
+                  //     title: post.title,
+                  //     description: post.description,
+                  //     commentsCount: post.comments.length,
+                  //   ),
+                  // );
+                },
+              ),
             );
           },
         ),
@@ -101,6 +116,157 @@ class _CommunityScreenState extends State<CommunityScreen> {
               child: Icon(Icons.edit),
             )
           : null,
+    );
+  }
+}
+
+class CardWidget extends StatelessWidget {
+  final String imageUrl;
+  final String userName;
+  final String location;
+  final String title;
+  final String description;
+  final int commentsCount;
+  final Post post;
+
+  const CardWidget(
+      {super.key,
+      required this.imageUrl,
+      required this.userName,
+      required this.location,
+      required this.title,
+      required this.description,
+      required this.commentsCount,
+      required this.post});
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Card(
+        color: const Color(0xffffffff),
+        elevation: 0,
+        clipBehavior: Clip.hardEdge,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: Color(0xffEBEBEB), width: 2),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            // Replace with your plant image
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const CircleAvatar(
+                        backgroundColor: Color.fromARGB(255, 223, 222, 222),
+                        backgroundImage: AssetImage('assets/user23.png'),
+                        radius: 20,
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            userName,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text('12 mins ago',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              )),
+                        ],
+                      ),
+                      const Spacer(),
+                      TextButton(
+                          onPressed: () => (Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      PostDetailScreen(post: post),
+                                ),
+                              )),
+                          child: Text('View'))
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    description,
+                    style: TextStyle(fontSize: 13),
+                  ),
+                  const SizedBox(height: 10),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.network(
+                        height: 180,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        imageUrl),
+                  ),
+                  const SizedBox(height: 10),
+                  TextButton.icon(
+                    onPressed: () => (),
+                    icon: const Icon(Icons.comment, color: Colors.black),
+                    label: const Text(
+                      'Comment',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            // OverflowBar(
+            //   alignment: MainAxisAlignment.start,
+            //   children: [
+            //     // TextButton(
+            //     //   onPressed: () {
+            //     //     // Handle Save
+            //     //   },
+            //     //   child: Text('Save'),
+            //     // ),
+            //     TextButton(
+            //       onPressed: () {
+            //         // Handle Comment
+            //       },
+            //       child: Row(
+            //         children: [
+            //           SvgPicture.asset(
+            //             'assets/scanner.svg',
+            //             color: Colors.white,
+            //             height: 40,
+            //           ),
+            //           Text('Comment'),
+            //         ],
+            //       ),
+            //     ),
+            //     // TextButton(
+            //     //   onPressed: () {
+            //     //     // Handle Share
+            //     //   },
+            //     //   child: Text('Share'),
+            //     // ),
+            //   ],
+            // ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -161,7 +327,7 @@ class PostCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
-      elevation: 0,
+      elevation: 0.3,
       margin: EdgeInsets.all(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

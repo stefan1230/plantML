@@ -60,7 +60,6 @@
 //   }
 // }
 
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
@@ -108,6 +107,7 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xffffffff),
       appBar: CommonAppBar(title: 'More'),
       body: Padding(
         padding: EdgeInsets.all(8),

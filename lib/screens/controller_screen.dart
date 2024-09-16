@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:plantdiseaseidentifcationml/app_color.dart';
 import 'package:plantdiseaseidentifcationml/screens/community_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/home_screen.dart';
@@ -21,7 +22,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   int _selectedIndex = 0;
   CameraController? _cameraController;
   static final List<Widget> _widgetOptions = <Widget>[
-    HomeScreen(),
+    const HomeScreen(),
     const ProgressTrackerScreen(),
     const ProgressTrackerScreen(),
     const CommunityScreen(),
@@ -192,7 +193,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
             style: TextStyle(
               color:
                   _selectedIndex == index ? AppColors.MainGreen : Colors.grey,
-              fontSize: 12,
+              fontSize: 10,
             ),
           ),
         ],
@@ -224,6 +225,14 @@ class _CameraScreenState extends State<CameraScreen> {
     }
   }
 
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      _imageFile = image;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -251,6 +260,7 @@ class _CameraScreenState extends State<CameraScreen> {
                           color: Colors.white, size: 30),
                       onPressed: () {
                         // Handle gallery action
+                        _pickImage();
                       },
                     ),
                     FloatingActionButton(

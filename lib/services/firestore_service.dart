@@ -11,15 +11,19 @@ class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  final CollectionReference plantsCollection = FirebaseFirestore.instance.collection('plants');
-  final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
+  final CollectionReference plantsCollection =
+      FirebaseFirestore.instance.collection('plants');
+  final CollectionReference usersCollection =
+      FirebaseFirestore.instance.collection('users');
 
-  Future<void> addPost(String author, String title, String description, String imagePath) async {
+  Future<void> addPost(
+      String author, String title, String description, String imagePath) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       File file = File(imagePath);
       String fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
-      TaskSnapshot snapshot = await _storage.ref().child('post_images/$fileName').putFile(file);
+      TaskSnapshot snapshot =
+          await _storage.ref().child('post_images/$fileName').putFile(file);
       String downloadUrl = await snapshot.ref.getDownloadURL();
       await _db.collection('posts').add({
         'author': user!.displayName,
@@ -47,7 +51,7 @@ class FirestoreService {
         'uid': user.uid,
         'name': user.displayName ?? user.email,
       },
-      'timestamp': FieldValue.serverTimestamp(),
+      // 'timestamp': FieldValue.serverTimestamp(),
     };
 
     await _db.collection('posts').doc(postId).update({
@@ -73,8 +77,10 @@ class FirestoreService {
       throw Exception("No user logged in");
     }
 
-    String fileName = '${DateTime.now().millisecondsSinceEpoch}_${user.uid}.jpg';
-    TaskSnapshot snapshot = await _storage.ref().child('plants/$plantId/$fileName').putFile(image);
+    String fileName =
+        '${DateTime.now().millisecondsSinceEpoch}_${user.uid}.jpg';
+    TaskSnapshot snapshot =
+        await _storage.ref().child('plants/$plantId/$fileName').putFile(image);
     String downloadUrl = await snapshot.ref.getDownloadURL();
 
     await plantsCollection.doc(plantId).update({
@@ -123,19 +129,21 @@ class FirestoreService {
     }
   }
 
-
   Future<void> addSampleNotifications() async {
-    final CollectionReference alertsCollection = _db.collection('diseaseAlerts');
+    final CollectionReference alertsCollection =
+        _db.collection('diseaseAlerts');
     List<Map<String, dynamic>> sampleAlerts = [
       {
         'title': 'Powdery Mildew Outbreak',
-        'description': 'There is an outbreak of Powdery Mildew in the following areas...',
+        'description':
+            'There is an outbreak of Powdery Mildew in the following areas...',
         'affectedAreas': ['Area1', 'Area2'],
         'createdAt': FieldValue.serverTimestamp(),
       },
       {
         'title': 'Blight Outbreak Alert',
-        'description': 'A severe blight outbreak has been reported in your area. Take immediate action to protect your crops.',
+        'description':
+            'A severe blight outbreak has been reported in your area. Take immediate action to protect your crops.',
         'affectedAreas': ['Area3', 'Area4'],
         'createdAt': FieldValue.serverTimestamp(),
       },
@@ -161,56 +169,59 @@ class FirestoreService {
   }
 
   Future<void> addPlantDiseases() async {
-  final CollectionReference diseasesCollection = FirebaseFirestore.instance.collection('plantDiseases');
+    final CollectionReference diseasesCollection =
+        FirebaseFirestore.instance.collection('plantDiseases');
 
-  List<Map<String, dynamic>> diseaseData = [
-    {
-      'diseaseName': 'Powdery Mildew',
-      'description': 'Powdery mildew is a fungal disease that affects a wide range of plants. It is characterized by white powdery spots on leaves and stems.',
-      'prevention': [
-        'Ensure good air circulation around plants',
-        'Avoid overhead watering',
-        'Plant resistant varieties'
-      ],
-      'treatment': [
-        'Apply fungicidal sprays containing sulfur or potassium bicarbonate',
-        'Remove and destroy infected plant parts',
-        'Use neem oil or horticultural oils'
-      ]
-    },
-    {
-      'diseaseName': 'Downy Mildew',
-      'description': 'Downy mildew is a disease caused by water molds. It is characterized by yellowish or pale green spots on the upper surface of leaves and white, downy growth on the underside.',
-      'prevention': [
-        'Improve air circulation by proper spacing of plants',
-        'Water plants early in the day to allow leaves to dry',
-        'Remove plant debris from the garden'
-      ],
-      'treatment': [
-        'Apply fungicides containing copper or mancozeb',
-        'Remove and destroy infected plant parts',
-        'Use resistant plant varieties'
-      ]
-    },
-    {
-      'diseaseName': 'Rust',
-      'description': 'Rust is a fungal disease that appears as orange, yellow, or brown pustules on leaves and stems. It can severely affect plant health and yield.',
-      'prevention': [
-        'Plant resistant varieties',
-        'Avoid overhead watering',
-        'Ensure proper plant spacing for air circulation'
-      ],
-      'treatment': [
-        'Apply fungicides containing sulfur or copper',
-        'Remove and destroy infected plant parts',
-        'Use neem oil or other organic fungicides'
-      ]
+    List<Map<String, dynamic>> diseaseData = [
+      {
+        'diseaseName': 'Powdery Mildew',
+        'description':
+            'Powdery mildew is a fungal disease that affects a wide range of plants. It is characterized by white powdery spots on leaves and stems.',
+        'prevention': [
+          'Ensure good air circulation around plants',
+          'Avoid overhead watering',
+          'Plant resistant varieties'
+        ],
+        'treatment': [
+          'Apply fungicidal sprays containing sulfur or potassium bicarbonate',
+          'Remove and destroy infected plant parts',
+          'Use neem oil or horticultural oils'
+        ]
+      },
+      {
+        'diseaseName': 'Downy Mildew',
+        'description':
+            'Downy mildew is a disease caused by water molds. It is characterized by yellowish or pale green spots on the upper surface of leaves and white, downy growth on the underside.',
+        'prevention': [
+          'Improve air circulation by proper spacing of plants',
+          'Water plants early in the day to allow leaves to dry',
+          'Remove plant debris from the garden'
+        ],
+        'treatment': [
+          'Apply fungicides containing copper or mancozeb',
+          'Remove and destroy infected plant parts',
+          'Use resistant plant varieties'
+        ]
+      },
+      {
+        'diseaseName': 'Rust',
+        'description':
+            'Rust is a fungal disease that appears as orange, yellow, or brown pustules on leaves and stems. It can severely affect plant health and yield.',
+        'prevention': [
+          'Plant resistant varieties',
+          'Avoid overhead watering',
+          'Ensure proper plant spacing for air circulation'
+        ],
+        'treatment': [
+          'Apply fungicides containing sulfur or copper',
+          'Remove and destroy infected plant parts',
+          'Use neem oil or other organic fungicides'
+        ]
+      }
+    ];
+
+    for (var disease in diseaseData) {
+      await diseasesCollection.add(disease);
     }
-  ];
-
-  for (var disease in diseaseData) {
-    await diseasesCollection.add(disease);
   }
-}
-
 }

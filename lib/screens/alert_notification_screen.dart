@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
 import 'package:plantdiseaseidentifcationml/screens/alert_notification_detail_screen.dart';
 
@@ -12,8 +13,9 @@ class NotificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Disease Outbreak Notifications'),
+      backgroundColor: const Color(0xffffffff),
+      appBar: CommonAppBar(
+        title: 'Disease Outbreak Notifications',
       ),
       body: StreamBuilder<List<NotificationItem>>(
         stream: _firestoreService.getAlerts(),
@@ -34,7 +36,8 @@ class NotificationScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DetailedNotificationScreen(notification: notification),
+                      builder: (context) => DetailedNotificationScreen(
+                          notification: notification),
                     ),
                   );
                 },
@@ -42,7 +45,8 @@ class NotificationScreen extends StatelessWidget {
                   margin: EdgeInsets.all(10),
                   child: ListTile(
                     title: Text(notification.title),
-                    subtitle: Text('${notification.description}\n${notification.createdAt}'),
+                    subtitle: Text(
+                        '${notification.description}\n${notification.createdAt}'),
                     isThreeLine: true,
                   ),
                 ),

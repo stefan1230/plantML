@@ -11,6 +11,8 @@ import 'package:plantdiseaseidentifcationml/screens/register_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
 
+GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -28,13 +30,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Flutter Demo',
       theme: ThemeData(
         // colorScheme: ColorScheme.fromSeed(seedColor: AppColors.MainGreen),
         // scaffoldBackgroundColor:
         //     Color.fromARGB(255, 218, 219, 240).withOpacity(0.2),
         // textTheme: GoogleFonts.ralewayTextTheme(Theme.of(context).textTheme),
-        textTheme: GoogleFonts.cabinTextTheme(Theme.of(context).textTheme),
+        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
         useMaterial3: true,
       ),
       home: AuthWrapper(),
