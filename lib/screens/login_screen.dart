@@ -63,48 +63,51 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-Future<void> _handleRegister() async {
-  if (_formKey.currentState!.validate()) {
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-      User? user = result.user;
-
-      if (user != null) {
-        await user.updateProfile(
-          displayName: "${_firstNameController.text} ${_lastNameController.text}"
-        );
-        
-        // Create a user document in Firestore
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-          'firstName': _firstNameController.text,
-          'lastName': _lastNameController.text,
-          'email': _emailController.text.trim(),
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const ControllerScreen()),
-        );
-      }
-    } catch (e) {
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration failed: ${e.toString()}')),
-      );
-    } finally {
+  Future<void> _handleRegister() async {
+    if (_formKey.currentState!.validate()) {
       setState(() {
-        _isLoading = false;
+        _isLoading = true;
       });
+      try {
+        UserCredential result = await _auth.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+        User? user = result.user;
+
+        if (user != null) {
+          await user.updateProfile(
+              displayName:
+                  "${_firstNameController.text} ${_lastNameController.text}");
+
+          // Create a user document in Firestore
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .set({
+            'firstName': _firstNameController.text,
+            'lastName': _lastNameController.text,
+            'email': _emailController.text.trim(),
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const ControllerScreen()),
+          );
+        }
+      } catch (e) {
+        print(e);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration failed: ${e.toString()}')),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +153,7 @@ Future<void> _handleRegister() async {
                           fontSize: 16,
                         ),
                         const Spacer(),
-                        if (!_isRegistering)
+                        if (!_isRegistering && false)
                           TextButton(
                             onPressed: () {
                               // Handle forgot password

@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:plantdiseaseidentifcationml/app_color.dart';
 import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 import 'package:plantdiseaseidentifcationml/screens/community_screen.dart';
+import 'package:plantdiseaseidentifcationml/screens/progress_tracker_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -65,7 +66,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 10),
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Navigate to my plants screen
+                        Navigator.of(context, rootNavigator: false).push(
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const ProgressTrackerScreen()));
+                        // Navigator.push(
+                        //   context,
+                        // MaterialPageRoute(
+                        //     builder: (context) =>
+                        //         const ProgressTrackerScreen()),
+                        // );
                       },
                       icon: const Icon(
                         Icons.local_florist,

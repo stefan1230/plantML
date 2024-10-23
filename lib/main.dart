@@ -9,9 +9,29 @@ import 'package:plantdiseaseidentifcationml/screens/controller_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/login_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/register_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:plantdiseaseidentifcationml/services/firebase_messaging_service.dart';
 import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final FirebaseMessagingService _messagingService = FirebaseMessagingService();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.messageId}");
+}
+// Future<void> main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   try {
+//     await Firebase.initializeApp(
+//         options: DefaultFirebaseOptions.currentPlatform);
+//     await FirebaseMessagingService().initNotification();
+//     print('Firebase initialized successfully');
+//   } catch (e) {
+//     print('Failed to initialize Firebase: $e');
+//   }
+//   runApp(const MyApp());
+// }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +39,14 @@ Future<void> main() async {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
     print('Firebase initialized successfully');
+
+    // Initialize Firebase Messaging Service
+    await _messagingService.initialize();
+
+    // Set up background message handler
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    print('Firebase Messaging initialized successfully');
   } catch (e) {
     print('Failed to initialize Firebase: $e');
   }

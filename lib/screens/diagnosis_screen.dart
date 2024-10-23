@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class DiagnosisScreen extends StatelessWidget {
   final List<String> imageUrls = [
-    'https://via.placeholder.com/300.png',  // Replace with your actual image URLs
+    'https://via.placeholder.com/300.png', // Replace with your actual image URLs
     'https://via.placeholder.com/300.png',
     'https://via.placeholder.com/300.png',
   ];
@@ -12,25 +12,25 @@ class DiagnosisScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Diagnosis'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.share),
-            onPressed: () {
-              // Share action
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: () {
-              // More action
-            },
-          ),
-        ],
+        title: const Text('Diagnosis'),
+        // actions: [
+        //   IconButton(
+        //     icon: Icon(Icons.share),
+        //     onPressed: () {
+        //       // Share action
+        //     },
+        //   ),
+        //   IconButton(
+        //     icon: Icon(Icons.more_vert),
+        //     onPressed: () {
+        //       // More action
+        //     },
+        //   ),
+        // ],
       ),
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -69,12 +69,12 @@ class DiagnosisScreen extends StatelessWidget {
               //   }).toList(),
               // ),
               SizedBox(height: 8),
-              Text(
-                '3 photos',
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
-              ),
+              // Text(
+              //   '3 photos',
+              //   style: TextStyle(
+              //     color: Colors.grey,
+              //   ),
+              // ),
               SizedBox(height: 16),
               // Row(
               //   children: [
