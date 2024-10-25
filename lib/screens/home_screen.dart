@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // surfaceTintColor: Colors.white,
             // elevation: 0.3,
             const SizedBox(
-              height: 50,
+              height: 30,
             ),
             const ListTile(
               title: Text(

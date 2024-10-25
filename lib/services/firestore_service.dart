@@ -59,13 +59,30 @@ class FirestoreService {
     });
   }
 
-  Future<void> addPlant(Plant plant) async {
-    await plantsCollection.add(plant.toMap());
+  Future<String> addPlant(Plant plant) async {
+    DocumentReference docRef = await plantsCollection.add(plant.toMap());
+    String plantId = docRef.id;
+
+    // Update the document with its own ID
+    await docRef.update({'id': plantId});
+
+    return plantId;
   }
 
   Stream<List<Plant>> getPlants() {
-    return plantsCollection.snapshots().map((snapshot) {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    print(currentUser);
+    if (currentUser == null) {
+      // If no user is logged in, return an empty stream
+      return Stream.value([]);
+    }
+
+    return plantsCollection
+        .where('userId', isEqualTo: currentUser.uid)
+        .snapshots()
+        .map((snapshot) {
       return snapshot.docs.map((doc) {
+        print(doc.data());
         return Plant.fromMap(doc.data() as Map<String, dynamic>);
       }).toList();
     });
@@ -77,16 +94,80 @@ class FirestoreService {
       throw Exception("No user logged in");
     }
 
+    DocumentSnapshot plantDoc = await plantsCollection.doc(plantId).get();
+    if (!plantDoc.exists) {
+      throw Exception("Plant document not found");
+    }
+
     String fileName =
         '${DateTime.now().millisecondsSinceEpoch}_${user.uid}.jpg';
-    TaskSnapshot snapshot =
-        await _storage.ref().child('plants/$plantId/$fileName').putFile(image);
-    String downloadUrl = await snapshot.ref.getDownloadURL();
+    String storagePath = 'plants/$plantId/$fileName';
 
-    await plantsCollection.doc(plantId).update({
-      'progressImages': FieldValue.arrayUnion([downloadUrl]),
-    });
+    try {
+      TaskSnapshot snapshot = await _storage.ref(storagePath).putFile(image);
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      Map<String, dynamic> imageData = {
+        'url': downloadUrl,
+        'date': DateTime.now() // Use client's current datetime
+      };
+
+      await plantsCollection.doc(plantId).update({
+        'progressImages': FieldValue.arrayUnion([imageData]),
+      });
+
+      print("Progress image added successfully: $downloadUrl");
+    } catch (e) {
+      print("Error adding progress image: $e");
+      throw e;
+    }
   }
+
+  // Future<void> addSampleData() async {
+  //   User? user = FirebaseAuth.instance.currentUser;
+  //   if (user == null) {
+  //     throw Exception("No user logged in");
+  //   }
+
+  //   List<Plant> samplePlants = [
+  //     Plant(
+  //       imageUrl:
+  //           'https://firebasestorage.googleapis.com/v0/b/plantdiseaseapp-6f285.appspot.com/o/plants%2F1%2F1721927087286_J5nIWV2WYDSgPJEGIRlwU138ttp2.jpg?alt=media&token=68949b68-9466-44df-996c-d70ed745b6d2',
+  //       diagnosis: 'Chilli Corcospora Leaf Spot',
+  //       remedies: 'Complete',
+  //       prevention: 'Test Prevention',
+  //       userId: user.uid, // Add the current user's ID
+  //     ),
+  //     Plant(
+  //       imageUrl:
+  //           'https://firebasestorage.googleapis.com/v0/b/plantdiseaseapp-6f285.appspot.com/o/plants%2F1%2F1721927087286_J5nIWV2WYDSgPJEGIRlwU138ttp2.jpg?alt=media&token=68949b68-9466-44df-996c-d70ed745b6d2',
+  //       diagnosis: 'Tomato Blight',
+  //       remedies: 'Complete',
+  //       prevention: 'Test Prevention',
+  //       userId: user.uid, // Add the current user's ID
+  //     ),
+  //   ];
+
+  //   for (Plant plant in samplePlants) {
+  //     // Create a new map with all plant data and the user ID
+  //     Map<String, dynamic> plantData = plant.toMap();
+  //     plantData['userId'] = user.uid;
+
+  //     DocumentReference plantRef = await plantsCollection.add(plantData);
+
+  //     // Add sample progress images
+  //     List<String> progressImages = [
+  //       'https://via.placeholder.com/150/1',
+  //       'https://via.placeholder.com/150/2',
+  //       'https://via.placeholder.com/150/3',
+  //     ];
+
+  //     for (String imageUrl in progressImages) {
+  //       await plantRef.update({
+  //         'progressImages': FieldValue.arrayUnion([imageUrl]),
+  //       });
+  //     }
+  //   }
+  // }
 
   Future<void> addSampleData() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -96,36 +177,36 @@ class FirestoreService {
 
     List<Plant> samplePlants = [
       Plant(
-        id: '1',
-        imageUrl: 'https://via.placeholder.com/150',
+        imageUrl:
+            'https://firebasestorage.googleapis.com/v0/b/plantdiseaseapp-6f285.appspot.com/o/plants%2F1%2F1721927087286_J5nIWV2WYDSgPJEGIRlwU138ttp2.jpg?alt=media&token=68949b68-9466-44df-996c-d70ed745b6d2',
         diagnosis: 'Chilli Corcospora Leaf Spot',
         remedies: 'Complete',
         prevention: 'Test Prevention',
+        userId: user.uid,
+        // progressImages: [
+        //   'https://via.placeholder.com/150/1',
+        //   'https://via.placeholder.com/150/2',
+        //   'https://via.placeholder.com/150/3',
+        // ],
       ),
       Plant(
-        id: '2',
-        imageUrl: 'https://via.placeholder.com/150',
+        imageUrl:
+            'https://firebasestorage.googleapis.com/v0/b/plantdiseaseapp-6f285.appspot.com/o/plants%2F1%2F1721927087286_J5nIWV2WYDSgPJEGIRlwU138ttp2.jpg?alt=media&token=68949b68-9466-44df-996c-d70ed745b6d2',
         diagnosis: 'Tomato Blight',
         remedies: 'Complete',
         prevention: 'Test Prevention',
+        userId: user.uid,
+        // progressImages: [
+        //   'https://via.placeholder.com/150/4',
+        //   'https://via.placeholder.com/150/5',
+        //   'https://via.placeholder.com/150/6',
+        // ],
       ),
     ];
 
     for (Plant plant in samplePlants) {
-      DocumentReference plantRef = await plantsCollection.add(plant.toMap());
-
-      // Add sample progress images
-      List<String> progressImages = [
-        'https://via.placeholder.com/150/1',
-        'https://via.placeholder.com/150/2',
-        'https://via.placeholder.com/150/3',
-      ];
-
-      for (String imageUrl in progressImages) {
-        await plantRef.update({
-          'progressImages': FieldValue.arrayUnion([imageUrl]),
-        });
-      }
+      String plantId = await addPlant(plant);
+      print("Added sample plant with ID: $plantId");
     }
   }
 

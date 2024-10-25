@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:plantdiseaseidentifcationml/models/plant.dart';
 import 'package:plantdiseaseidentifcationml/screens/diagnosis_screen.dart';
@@ -46,16 +48,19 @@ class _JourneyScreenState extends State<JourneyScreen> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+    if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
       if (_isFabVisible) setState(() => _isFabVisible = false);
     }
-    if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+    if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.forward) {
       if (!_isFabVisible) setState(() => _isFabVisible = true);
     }
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
@@ -63,17 +68,57 @@ class _JourneyScreenState extends State<JourneyScreen> {
     });
   }
 
+  // Future<void> _uploadProgressImage() async {
+  //   // Here you can handle the image upload
+  //   if (_image != null) {
+  //     setState(() {
+  //       progressImages.add({
+  //         'imageUrl': _image!.path,
+  //         'date': DateTime.now().toIso8601String(),
+  //         'description': 'Newly added image'
+  //       });
+  //       _image = null;
+  //     });
+  //   }
+  // }
+
   Future<void> _uploadProgressImage() async {
-    // Here you can handle the image upload
+    print(widget.plant.id);
     if (_image != null) {
-      setState(() {
-        progressImages.add({
-          'imageUrl': _image!.path,
-          'date': DateTime.now().toIso8601String(),
-          'description': 'Newly added image'
+      try {
+        // Show loading indicator
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return Center(child: CircularProgressIndicator());
+          },
+        );
+
+        // Call the Firestore service to add the progress image
+        await FirestoreService().addProgressImage(widget.plant.id, _image!);
+
+        // Hide loading indicator
+        Navigator.of(context).pop();
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Progress image uploaded successfully')),
+        );
+
+        // Clear the selected image
+        setState(() {
+          _image = null;
         });
-        _image = null;
-      });
+      } catch (e) {
+        // Hide loading indicator
+        Navigator.of(context).pop();
+
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to upload progress image: $e')),
+        );
+      }
     }
   }
 
@@ -96,23 +141,38 @@ class _JourneyScreenState extends State<JourneyScreen> {
           children: [
             DiagnosisCard(plant: widget.plant),
             Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: progressImages.length,
-                itemBuilder: (context, index) {
-                  if (index >= progressImages.length) {
-                    return SizedBox.shrink(); // Return an empty widget if index is out of range
+              child: StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('plants')
+                    .doc(widget.plant.id)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
                   }
-                  String imageUrl = progressImages[index]['imageUrl']!;
-                  String date = progressImages[index]['date']!;
-                  String description = progressImages[index]['description']!;
-                  return JourneyTile(
-                    title: 'Progress Image',
-                    date: date,
-                    description: description,
-                    imageUrl: imageUrl,
-                    isFirst: index == 0,
-                    isLast: index == progressImages.length - 1,
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return Center(child: Text('No progress images yet.'));
+                  }
+                  List<dynamic> progressImages =
+                      snapshot.data!['progressImages'] ?? [];
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemCount: progressImages.length,
+                    itemBuilder: (context, index) {
+                      Map<String, dynamic> imageData = progressImages[index];
+                      String imageUrl = imageData['url'];
+                      DateTime date = (imageData['date'] as Timestamp).toDate();
+                      return JourneyTile(
+                        title: 'Progress Image',
+                        date: date
+                            .toString()
+                            .split(' ')[0], // Only show the date part
+                        description: '',
+                        imageUrl: imageUrl,
+                        isFirst: index == 0,
+                        isLast: index == progressImages.length - 1,
+                      );
+                    },
                   );
                 },
               ),
@@ -268,6 +328,8 @@ class JourneyTile extends StatelessWidget {
       endChild: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CircleAvatar(
               radius: 30,
@@ -277,6 +339,7 @@ class JourneyTile extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     title,
@@ -285,11 +348,6 @@ class JourneyTile extends StatelessWidget {
                   Text(
                     date,
                     style: TextStyle(color: Colors.grey),
-                  ),
-                  Text(
-                    description,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
