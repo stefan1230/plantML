@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:plantdiseaseidentifcationml/app_color.dart';
 import 'package:plantdiseaseidentifcationml/screens/community_screen.dart';
+import 'package:plantdiseaseidentifcationml/screens/disease_detection_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/home_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/menu_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/progress_tracker_screen.dart';
@@ -26,7 +27,8 @@ class _ControllerScreenState extends State<ControllerScreen> {
     const ProgressTrackerScreen(),
     const ProgressTrackerScreen(),
     const CommunityScreen(),
-    const MenuScreen(),
+    // const MenuScreen(),
+    PlantDiseaseDetector()
   ];
 
   @override

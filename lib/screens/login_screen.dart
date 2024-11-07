@@ -91,6 +91,12 @@ class _LoginScreenState extends State<LoginScreen> {
             'createdAt': FieldValue.serverTimestamp(),
           });
 
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Registration successful!'),
+              backgroundColor: Colors.green,
+            ),
+          );
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const ControllerScreen()),
