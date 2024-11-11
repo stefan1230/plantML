@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:plantdiseaseidentifcationml/app_color.dart';
 import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 import 'dart:io';
@@ -31,35 +32,45 @@ class _AddPostScreenState extends State<AddPostScreen> {
         _descriptionController.text.isNotEmpty &&
         _image != null) {
       setState(() {
-        _isLoading = true; // Start the loading state
+        _isLoading = true;
       });
-      _showLoadingDialog(context); // Show the loading dialog
+      _showLoadingDialog(context);
 
       try {
-        await FirestoreService().addPost(
-          'UserName', // Replace with actual user name
-          _titleController.text,
-          _descriptionController.text,
-          _image!.path,
-        );
+        User? user = FirebaseAuth.instance.currentUser;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Post added successfully')),
-        );
-        _titleController.clear();
-        _descriptionController.clear();
-        setState(() {
-          _image = null;
-          _isLoading = false;
-        });
+        // Ensure the user is logged in before proceeding
+        if (user != null) {
+          await FirestoreService().addPost(
+            user.displayName ?? 'Unknown User', // Replace with actual user name
+            _titleController.text,
+            _descriptionController.text,
+            _image!.path,
+            user.uid, // Pass user ID to identify the post's author
+          );
 
-        Navigator.of(context).pop(); // Close the loading dialog
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Post added successfully')),
+          );
+
+          _titleController.clear();
+          _descriptionController.clear();
+          setState(() {
+            _image = null;
+            _isLoading = false;
+          });
+
+          Navigator.of(context).pop(); // Close the loading dialog
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('User not logged in')),
+          );
+        }
       } catch (e) {
         print(e);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to add post: $e')),
         );
-
         setState(() {
           _isLoading = false;
         });

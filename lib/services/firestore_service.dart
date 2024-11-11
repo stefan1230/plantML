@@ -16,8 +16,8 @@ class FirestoreService {
   final CollectionReference usersCollection =
       FirebaseFirestore.instance.collection('users');
 
-  Future<void> addPost(
-      String author, String title, String description, String imagePath) async {
+  Future<void> addPost(String author, String title, String description,
+      String imagePath, String userId) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       File file = File(imagePath);
@@ -25,8 +25,10 @@ class FirestoreService {
       TaskSnapshot snapshot =
           await _storage.ref().child('post_images/$fileName').putFile(file);
       String downloadUrl = await snapshot.ref.getDownloadURL();
+
       await _db.collection('posts').add({
         'author': user!.displayName,
+        'userId': userId, // Store the user ID
         'title': title,
         'description': description,
         'imageUrl': downloadUrl,
@@ -215,14 +217,14 @@ class FirestoreService {
         _db.collection('diseaseAlerts');
     List<Map<String, dynamic>> sampleAlerts = [
       {
-        'title': 'Powdery Mildew Outbreak',
+        'title': 'Powdery Mildew Outbreak 2',
         'description':
             'There is an outbreak of Powdery Mildew in the following areas...',
         'affectedAreas': ['Area1', 'Area2'],
         'createdAt': FieldValue.serverTimestamp(),
       },
       {
-        'title': 'Blight Outbreak Alert',
+        'title': 'Blight Outbreak Alert 3',
         'description':
             'A severe blight outbreak has been reported in your area. Take immediate action to protect your crops.',
         'affectedAreas': ['Area3', 'Area4'],

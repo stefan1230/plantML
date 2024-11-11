@@ -1,0 +1,44 @@
+{
+    "plantCareTips": [
+        {
+            "title": "Watering",
+            "description": "Water your plants in the morning to reduce evaporation and help them absorb water throughout the day.",
+            "icon": "assets/icons/watering_can.svg"
+        },
+        {
+            "title": "Fertilizing",
+            "description": "Apply fertilizer every two weeks during the growing season to keep your plants healthy and thriving.",
+            "icon": "assets/icons/fertilizer.svg"
+        },
+        {
+            "title": "Air Circulation",
+            "description": "Ensure good air circulation around plants to prevent fungal diseases.",
+            "icon": "assets/icons/fan.svg"
+        },
+        {
+            "title": "Pest Control",
+            "description": "Inspect your plants regularly for pests, and remove any infested leaves or stems immediately.",
+            "icon": "assets/icons/pest_control.svg"
+        },
+        {
+            "title": "Pruning",
+            "description": "Prune dead or damaged leaves to encourage new growth and maintain plant health.",
+            "icon": "assets/icons/pruning.svg"
+        },
+        {
+            "title": "Sunlight",
+            "description": "Make sure your plants get the right amount of sunlight. Some plants need full sun, while others prefer shade.",
+            "icon": "assets/icons/sunlight.svg"
+        },
+        {
+            "title": "Soil Quality",
+            "description": "Use well-draining soil and add compost or organic matter to enrich the soil and provide nutrients.",
+            "icon": "assets/icons/soil.svg"
+        },
+        {
+            "title": "Mulching",
+            "description": "Apply a layer of mulch around the base of the plants to retain moisture, regulate soil temperature, and suppress weeds.",
+            "icon": "assets/icons/mulch.svg"
+        }
+    ]
+}

@@ -5,11 +5,13 @@ import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:plantdiseaseidentifcationml/app_color.dart';
 import 'package:plantdiseaseidentifcationml/screens/community_screen.dart';
+import 'package:plantdiseaseidentifcationml/screens/disease_detection_scree.dart';
 import 'package:plantdiseaseidentifcationml/screens/disease_detection_screen.dart';
+// import 'package:plantdiseaseidentifcationml/screens/disease_detection_screen2.dart';
 import 'package:plantdiseaseidentifcationml/screens/home_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/menu_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/progress_tracker_screen.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+// import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:camera/camera.dart';
 
 class ControllerScreen extends StatefulWidget {
@@ -22,13 +24,15 @@ class ControllerScreen extends StatefulWidget {
 class _ControllerScreenState extends State<ControllerScreen> {
   int _selectedIndex = 0;
   CameraController? _cameraController;
+  XFile? _imageFile;
+  final ImagePicker picker = ImagePicker();
+
   static final List<Widget> _widgetOptions = <Widget>[
     const HomeScreen(),
     const ProgressTrackerScreen(),
     const ProgressTrackerScreen(),
     const CommunityScreen(),
-    // const MenuScreen(),
-    PlantDiseaseDetector()
+    const MenuScreen(),
   ];
 
   @override
@@ -63,34 +67,65 @@ class _ControllerScreenState extends State<ControllerScreen> {
     });
   }
 
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? selectedImage = await picker.pickImage(source: source);
+
+      if (selectedImage != null) {
+        setState(() {
+          _imageFile = selectedImage;
+        });
+        _detectDisease(File(selectedImage.path)); // Call the detection method
+      } else {
+        print('No image selected.');
+      }
+    } catch (e) {
+      print("Error picking image: $e");
+    }
+  }
+
   void _showImagePickerOptions() {
-    showMaterialModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: SizedBox(
-          height: 150,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.photo_library),
-                title: Text('Photo Library'),
-                onTap: () {
-                  // _pickImage(ImageSource.gallery);
-                  Navigator.of(context).pop();
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.photo_camera),
-                title: Text('Camera'),
-                onTap: () {
-                  _openCamera();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-        ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DiseaseDetectionScreen4()),
+    );
+    // showModalBottomSheet(
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return SafeArea(
+    //       child: Wrap(
+    //         children: <Widget>[
+    //           ListTile(
+    //             leading: Icon(Icons.photo_library),
+    //             title: Text('Photo Library'),
+    //             onTap: () {
+    //               Navigator.of(context).pop();
+    //               _pickImage(ImageSource.gallery);
+    //             },
+    //           ),
+    //           ListTile(
+    //             leading: Icon(Icons.photo_camera),
+    //             title: Text('Camera'),
+    //             onTap: () {
+    //               Navigator.of(context).pop();
+    //               _pickImage(ImageSource.camera);
+    //             },
+    //           ),
+    //         ],
+    //       ),
+    //     );
+    //   },
+    // );
+  }
+
+  Future<void> _detectDisease(File image) async {
+    // Placeholder for the disease detection logic
+    print("Disease detection called with image: ${image.path}");
+    // Navigate to disease detection screen or call detection model here
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlantDiseaseDetector(image: image),
       ),
     );
   }
@@ -128,14 +163,13 @@ class _ControllerScreenState extends State<ControllerScreen> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: BottomAppBar(
-          // surfaceTintColor: const Color.fromARGB(255, 175, 47, 47),
           color: const Color(0xffffffff),
           shape: const CircularNotchedRectangle(),
           notchMargin: 5,
           elevation: 8,
           shadowColor: Colors.black.withOpacity(1),
           child: SizedBox(
-            height: 50, // Reduced height for the bottom navigation bar
+            height: 50,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -227,14 +261,6 @@ class _CameraScreenState extends State<CameraScreen> {
     }
   }
 
-  Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      _imageFile = image;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -248,12 +274,6 @@ class _CameraScreenState extends State<CameraScreen> {
             right: 0,
             child: Column(
               children: [
-                if (_imageFile != null)
-                  Image.file(
-                    File(_imageFile!.path),
-                    height: 100,
-                    width: 100,
-                  ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -261,8 +281,7 @@ class _CameraScreenState extends State<CameraScreen> {
                       icon: Icon(Icons.photo_library,
                           color: Colors.white, size: 30),
                       onPressed: () {
-                        // Handle gallery action
-                        _pickImage();
+                        Navigator.of(context).pop();
                       },
                     ),
                     FloatingActionButton(
@@ -270,26 +289,9 @@ class _CameraScreenState extends State<CameraScreen> {
                       backgroundColor: Colors.white,
                       child: Icon(Icons.camera_alt, color: Colors.black),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.help_outline,
-                          color: Colors.white, size: 30),
-                      onPressed: () {
-                        // Handle help action
-                      },
-                    ),
                   ],
                 ),
               ],
-            ),
-          ),
-          Center(
-            child: Container(
-              height: 200,
-              width: 200,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white, width: 2),
-                borderRadius: BorderRadius.circular(12),
-              ),
             ),
           ),
         ],

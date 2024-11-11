@@ -33,6 +33,26 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 //   runApp(const MyApp());
 // }
 
+// Future<void> main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   try {
+//     await Firebase.initializeApp(
+//         options: DefaultFirebaseOptions.currentPlatform);
+//     print('Firebase initialized successfully');
+
+//     // Initialize Firebase Messaging Service
+//     await _messagingService.initialize();
+
+//     // Set up background message handler
+//     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+//     print('Firebase Messaging initialized successfully');
+//   } catch (e) {
+//     print('Failed to initialize Firebase: $e');
+//   }
+//   runApp(const MyApp());
+// }
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -41,7 +61,15 @@ Future<void> main() async {
     print('Firebase initialized successfully');
 
     // Initialize Firebase Messaging Service
-    await _messagingService.initialize();
+    FirebaseMessagingService messagingService = FirebaseMessagingService();
+    await messagingService.initialize(); // Initializes the service
+
+    // Retrieve the FCM token and print it
+    String? token = await messagingService.getToken();
+    if (token != null) {
+      print("FCM Token: $token");
+      // Save the token to your backend or database if needed
+    }
 
     // Set up background message handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

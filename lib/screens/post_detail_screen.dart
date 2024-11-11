@@ -4,6 +4,7 @@ import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart'
 import 'package:plantdiseaseidentifcationml/screens/community_screen.dart';
 import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class PostDetailScreen extends StatelessWidget {
   final Post post;
@@ -39,151 +40,97 @@ class PostDetailScreen extends StatelessWidget {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(8.0),
+              // padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  buildUserHeader(post),
-                  const SizedBox(height: 8),
-                  buildTitle(post),
-                  buildImage(post),
-                  const SizedBox(height: 8),
-                  buildDescription(post),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Comments:',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                  buildImage(context, post),
+                  _buildUserPost(post),
+                  Container(
+                    margin: EdgeInsets.only(top: 10, left: 10, right: 10),
+                    padding: EdgeInsets.all(0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: buildCommentsList(post),
                   ),
-                  buildCommentsList(post),
                 ],
               ),
             ),
           ),
-          // Padding(
-          //   padding:
-          //       const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-          //   child: TextField(
-          //     controller: _commentController,
-          //     decoration: InputDecoration(
-          //       labelText: 'Add a comment',
-          //       suffixIcon: IconButton(
-          //         icon: const Icon(Icons.send),
-          //         onPressed: () => _addComment(context),
-          //       ),
-          //       border: OutlineInputBorder(
-          //         borderRadius: BorderRadius.circular(8.0),
-          //       ),
-          //     ),
-          //   ),
-          // ),
-
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  'assets/comment 1.svg',
-                  height: 32,
-                  width: 32,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: _commentController,
-                    textInputAction: TextInputAction.done,
-                    decoration: InputDecoration(
-                      hintText: 'Add a comment...',
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 10),
-                      border: customBorder(Colors.grey),
-                      enabledBorder: customBorder(Colors.grey),
-                      focusedBorder: customBorder(Colors.blue),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 0),
-                TextButton(
-                  onPressed: () {
-                    _addComment(context);
-                    if (_commentController.text.isNotEmpty) {
-                      FocusScope.of(context).unfocus();
-                    }
-                  },
-                  child: const Text(
-                    'Post',
-                  ),
-                ),
-              ],
-            ),
-          )
+            padding: const EdgeInsets.all(8.0),
+            child: _buildInputField(context),
+          ),
         ],
       ),
     );
   }
 
-  Widget buildUserHeader(Post post) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        const CircleAvatar(
-          backgroundColor: Color.fromARGB(255, 223, 222, 222),
-          backgroundImage: AssetImage('assets/user23.png'), // Example image
-          radius: 15,
-        ),
-        const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              post.author,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              '12 mins ago',
-              style: TextStyle(color: Colors.grey, fontSize: 12),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+  Widget _buildUserPost(Post post) {
+    String getTimeAgo(Timestamp timestamp) {
+      final DateTime dateTime = timestamp.toDate();
+      return timeago.format(dateTime);
+    }
 
-  Widget buildTitle(Post post) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
-      child: Text(
-        post.title,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                backgroundImage:
+                    AssetImage('assets/user24.jpg'), // Dummy user image
+              ),
+              SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    post.author,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(getTimeAgo(post.createdAt)),
+                ],
+              ),
+            ],
+          ),
+          SizedBox(height: 15),
+          Text(
+            post.title,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          SizedBox(height: 5),
+          Text(post.description),
+        ],
       ),
     );
   }
 
-  Widget buildImage(Post post) {
+  Widget buildImage(BuildContext context, Post post) {
     return Padding(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.only(bottom: 12.0),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(0.0),
         child: Image.network(
           post.imageUrl,
-          width: double.infinity,
-          height: 200,
+          width: MediaQuery.of(context).size.width, // Full width
+          height: 250,
           fit: BoxFit.cover,
         ),
       ),
     );
   }
 
-  Widget buildDescription(Post post) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      child: Text(post.description),
-    );
-  }
-
   Widget buildCommentsList(Post post) {
+    String getTimeAgo(Timestamp timestamp) {
+      final DateTime dateTime = timestamp.toDate();
+      return timeago.format(dateTime);
+    }
+
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
           .collection('posts')
@@ -203,15 +150,16 @@ class PostDetailScreen extends StatelessWidget {
           itemCount: comments.length,
           itemBuilder: (context, index) {
             var comment = comments[index];
-            var timestamp = (comment['timestamp'] as Timestamp?)?.toDate();
+            // var timestamp = (comment['timestamp'] as Timestamp?)?.toDate();
             return ListTile(
               leading: CircleAvatar(
                 backgroundImage: NetworkImage(comment['user']['imageUrl'] ??
-                    'https://via.placeholder.com/150'),
+                    'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'),
               ),
               title: Text(comment['text']),
               subtitle: Text(
-                '${comment['user']['name']} - ${timestamp != null ? timestamp.toString() : 'Just now'}',
+                style: TextStyle(fontSize: 10),
+                '${comment['user']['name']} - ${'Just now'}',
               ),
             );
           },
@@ -219,11 +167,33 @@ class PostDetailScreen extends StatelessWidget {
       },
     );
   }
-}
 
-OutlineInputBorder customBorder(Color color) {
-  return OutlineInputBorder(
-    borderRadius: BorderRadius.circular(8),
-    borderSide: BorderSide(color: color, width: 0.5),
-  );
+  Widget _buildInputField(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _commentController,
+            textInputAction: TextInputAction.done,
+            decoration: InputDecoration(
+              hintText: 'Write your answer',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 8),
+        IconButton(
+          icon: Icon(Icons.send, color: Colors.green),
+          onPressed: () {
+            _addComment(context);
+            if (_commentController.text.isNotEmpty) {
+              FocusScope.of(context).unfocus();
+            }
+          },
+        ),
+      ],
+    );
+  }
 }

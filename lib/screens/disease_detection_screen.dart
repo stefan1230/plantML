@@ -5,7 +5,18 @@ import 'package:image_picker/image_picker.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
 
+// class PlantDiseaseDetector extends StatefulWidget {
+//   final File image;
+
+//   @override
+//   _PlantDiseaseDetectorState createState() => _PlantDiseaseDetectorState();
+// }
+
 class PlantDiseaseDetector extends StatefulWidget {
+  final File image;
+
+  PlantDiseaseDetector({required this.image});
+
   @override
   _PlantDiseaseDetectorState createState() => _PlantDiseaseDetectorState();
 }
@@ -21,18 +32,22 @@ class _PlantDiseaseDetectorState extends State<PlantDiseaseDetector> {
   void initState() {
     super.initState();
     loadModelAndLabels();
+    classifyImage(widget.image);
   }
 
   // Load the TFLite model and labels
   Future<void> loadModelAndLabels() async {
     try {
-      _interpreter = await Interpreter.fromAsset('assets/plant_disease_model.tflite');
+      _interpreter =
+          await Interpreter.fromAsset('assets/plant_disease_model.tflite');
       print("Model loaded successfully");
 
       // Load labels
-      final labelsData = await DefaultAssetBundle.of(context).loadString('assets/labels.txt');
+      final labelsData =
+          await DefaultAssetBundle.of(context).loadString('assets/labels.txt');
       setState(() {
-        _labels = labelsData.split('\n').where((label) => label.isNotEmpty).toList();
+        _labels =
+            labelsData.split('\n').where((label) => label.isNotEmpty).toList();
       });
     } catch (e) {
       print("Error loading model or labels: $e");
@@ -81,7 +96,8 @@ class _PlantDiseaseDetectorState extends State<PlantDiseaseDetector> {
       }
 
       // Find the index of the highest score
-      int maxScoreIndex = scores.indexWhere((score) => score == scores.reduce((a, b) => a > b ? a : b));
+      int maxScoreIndex = scores.indexWhere(
+          (score) => score == scores.reduce((a, b) => a > b ? a : b));
       double confidenceThreshold = 0.6; // Set a confidence threshold
 
       setState(() {
@@ -108,9 +124,9 @@ class _PlantDiseaseDetectorState extends State<PlantDiseaseDetector> {
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         var pixel = image.getPixel(x, y);
-        buffer[pixelIndex++] = (img.getRed(pixel) / 255.0);   // R
+        buffer[pixelIndex++] = (img.getRed(pixel) / 255.0); // R
         buffer[pixelIndex++] = (img.getGreen(pixel) / 255.0); // G
-        buffer[pixelIndex++] = (img.getBlue(pixel) / 255.0);  // B
+        buffer[pixelIndex++] = (img.getBlue(pixel) / 255.0); // B
       }
     }
     return buffer.buffer.asUint8List();

@@ -1,9 +1,14 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:plantdiseaseidentifcationml/app_color.dart';
 import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
 import 'package:plantdiseaseidentifcationml/screens/community_screen.dart';
 import 'package:plantdiseaseidentifcationml/screens/progress_tracker_screen.dart';
+import 'package:plantdiseaseidentifcationml/services/stormglass_weather_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,11 +18,65 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String weatherDescription = '';
+  double temperature = 0;
+  double latitude = 6.9271; // Example latitude for Colombo
+  double longitude = 79.8612; // Example longitude for Colombo
+
+  List<dynamic> plantCareTips = [];
+  Map<String, dynamic>? randomTip;
+
+  @override
+  void initState() {
+    super.initState();
+    // fetchWeatherData();
+    loadPlantCareTips();
+  }
+
+  Future<void> loadPlantCareTips() async {
+    final String response =
+        await rootBundle.loadString('assets/plant_care_tips.json');
+    final data = json.decode(response);
+    setState(() {
+      plantCareTips = data["plantCareTips"];
+      randomTip = getRandomTip();
+    });
+  }
+
+  Map<String, dynamic> getRandomTip() {
+    final random = Random();
+    return plantCareTips[random.nextInt(plantCareTips.length)];
+  }
+
+  Future<void> fetchWeatherData() async {
+    try {
+      final weatherData =
+          await StormGlassWeatherService().fetchWeather(latitude, longitude);
+
+      // Extract relevant information from the response
+      final temperatureData = weatherData['hours'][0]['airTemperature']
+          ['noaa']; // Using NOAA as the source
+      final precipitationData = weatherData['hours'][0]['precipitation']
+          ['noaa']; // NOAA precipitation data
+
+      setState(() {
+        temperature = temperatureData;
+        weatherDescription = 'Precipitation: ${precipitationData} mm';
+      });
+    } catch (e) {
+      print('Error fetching weather data: $e');
+      setState(() {
+        weatherDescription = 'Could not fetch data';
+        temperature = 0;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffffffff),
-      // appBar: const CommonAppBar(title: ''),
+      appBar: const CommonAppBar(title: 'Home'),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,9 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
             // color: Colors.white,
             // surfaceTintColor: Colors.white,
             // elevation: 0.3,
-            const SizedBox(
-              height: 30,
-            ),
+            // const SizedBox(
+            //   height: 30,
+            // ),
             const ListTile(
               title: Text(
                 'Welcome back! 👋 ',
@@ -148,8 +207,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Plant Care Tips',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
-                  subtitle: const Text(
-                    'Ensure good air circulation around plants to prevent fungal diseases.',
+                  subtitle: Text(
+                    randomTip?['description'] ??
+                        'Loading...', // Display the random tip
                     style: TextStyle(fontSize: 12),
                   ),
                   trailing: SvgPicture.asset(
@@ -214,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     title: const Text('Current Weather',
                         style: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.bold)),
-                    subtitle: const Text('Sunny, 25°C',
+                    subtitle: Text('Sunny, ${temperature.toStringAsFixed(1)}°C',
                         style: TextStyle(fontSize: 12)),
                     trailing: Container(
                       padding:
