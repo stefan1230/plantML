@@ -1,51 +1,71 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
+import 'package:plantdiseaseidentifcationml/models/plant.dart';
 import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class DiagnosisScreen extends StatefulWidget {
-  @override
-  State<DiagnosisScreen> createState() => _DiagnosisScreenState();
-}
+class DiagnosisScreen extends StatelessWidget {
+  final Map<String, dynamic> plantData;
+  final File? imageFile;
+  final bool fromModelDetection;
+  final String? imageURL;
 
-class _DiagnosisScreenState extends State<DiagnosisScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _addSampleData();
+  const DiagnosisScreen({
+    Key? key,
+    required this.plantData,
+    this.imageFile,
+    this.fromModelDetection = false,
+    this.imageURL,
+  }) : super(key: key);
+
+  Future<void> _addPlant(BuildContext context) async {
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+      // Get the current user ID
+      final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+
+      // Upload the image to Firebase Storage and get the download URL
+      final String imageUrl = await FirestoreService().uploadImage(imageFile!);
+
+      // Create the plant object
+      Plant newPlant = Plant(
+        imageUrl: imageUrl,
+        diagnosis: plantData['displayName'] ?? '',
+        remedies: (plantData['remedies'] as List<dynamic>).join(", "),
+        prevention: (plantData['prevention'] as List<dynamic>).join(", "),
+        userId: userId,
+      );
+
+      // Close loading dialog
+      Navigator.of(context).pop();
+
+      // Add the plant to Firestore
+      await FirestoreService().addPlant(newPlant);
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Plant added successfully")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to add plant: $e")),
+      );
+    }
   }
-
-  Future<void> _addSampleData() async {
-    await FirestoreService().addSampleNotifications();
-  }
-
-  final Map<String, dynamic> plantData = {
-    "name": "Pepper Bell - Bacterial Spot",
-    "type": "Bacterial Disease",
-    "description":
-        "A bacterial disease affecting peppers, causing small, water-soaked spots on leaves and fruits.",
-    "symptoms": [
-      "Small, water-soaked spots on leaves and fruits.",
-      "Spots enlarge to dark brown lesions with yellow halos.",
-      "Severe infections cause leaves to drop, exposing fruits to sunscald."
-    ],
-    "prevention": [
-      "Use disease-free seeds.",
-      "Practice crop rotation.",
-      "Avoid overhead watering to reduce leaf wetness."
-    ],
-    "remedies": [
-      "Remove and destroy infected plants.",
-      "Apply copper-based bactericides as a preventive measure.",
-      "Avoid working in the garden when plants are wet to prevent spreading."
-    ]
-  };
 
   @override
   Widget build(BuildContext context) {
+    String diseaseName = (plantData["name"] ?? "").toString().trim();
+    bool isHealthy = diseaseName.toLowerCase() == "healthy";
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Diagnosis'),
-      // ),
       appBar: const CommonAppBar(title: 'Diagnosis', leading: true),
       body: SingleChildScrollView(
         child: Padding(
@@ -53,202 +73,144 @@ class _DiagnosisScreenState extends State<DiagnosisScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image Section (Placeholder for now)
+              // Display the image
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  'https://via.placeholder.com/300.png',
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+                child: imageFile != null
+                    ? Image.file(
+                        imageFile!,
+                        height: 200,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.network(
+                        imageURL ?? 'https://via.placeholder.com/300.png',
+                        height: 200,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
               ),
               const SizedBox(height: 16),
 
-              // Plant Name and Type
+              // Display plant diagnosis information
               Text(
-                plantData["name"],
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                plantData["type"],
-                style: const TextStyle(
-                  color: Colors.green,
-                  fontSize: 16,
-                ),
+                plantData["displayName"],
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
 
-              // Health Alert Section
-              Container(
-                padding: const EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: Colors.red[50],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.warning, color: Colors.red),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            "Your plant may not be healthy!",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
+              // Health alert section (conditionally shown if not healthy)
+              if (plantData["name"] != "Tomato_healthy")
+                Container(
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.warning, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              "Your plant may not be healthy!",
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            "Check regularly to see if your plant is healthy!",
-                            style: TextStyle(fontSize: 14),
-                          ),
-                        ],
+                            Text(
+                              "Check regularly to see if your plant is healthy!",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
               const SizedBox(height: 16),
 
-              // Description Section
-              const Text(
-                "About",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              // Description
+              const Text("About",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              Text(
-                plantData["description"],
-                style: const TextStyle(fontSize: 16),
-              ),
+              Text(plantData["description"],
+                  style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 16),
 
-              // Symptoms Section
-              Row(
-                children: const [
-                  Icon(Icons.bug_report, color: Colors.black),
-                  SizedBox(width: 8),
-                  Text(
-                    "Symptoms",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ...plantData["symptoms"].map<Widget>((symptom) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.circle, size: 8, color: Colors.black54),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child:
-                            Text(symptom, style: const TextStyle(fontSize: 16)),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+              // Symptoms, Prevention, Remedies
+              _buildSection("Symptoms", plantData["symptoms"]),
+              const SizedBox(height: 16),
+              _buildSection("Prevention", plantData["prevention"]),
+              const SizedBox(height: 16),
+              _buildSection("Remedies", plantData["remedies"]),
               const SizedBox(height: 16),
 
-              // Prevention Section
-              Row(
-                children: const [
-                  Icon(Icons.shield, color: Colors.black),
-                  SizedBox(width: 8),
-                  Text(
-                    "Prevention",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ...plantData["prevention"].map<Widget>((prevention) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.circle, size: 8, color: Colors.black54),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(prevention,
-                            style: const TextStyle(fontSize: 16)),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-              const SizedBox(height: 16),
-
-              // Remedies Section
-              Row(
-                children: const [
-                  Icon(Icons.medical_services, color: Colors.black),
-                  SizedBox(width: 8),
-                  Text(
-                    "Remedies",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ...plantData["remedies"].map<Widget>((remedy) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.circle, size: 8, color: Colors.black54),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child:
-                            Text(remedy, style: const TextStyle(fontSize: 16)),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-              const SizedBox(height: 16),
-
-              // FAQ Section (if needed for extra content)
-              Row(
-                children: const [
-                  Icon(Icons.help_outline, color: Colors.black),
-                  SizedBox(width: 8),
-                  Text(
-                    "FAQ",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              // Add FAQ content here if needed...
+              // Add Plant Button (only shown if fromModelDetection is true)
+              // if (fromModelDetection)
+              //   Center(
+              //     child: ElevatedButton.icon(
+              //       icon: const Icon(Icons.add),
+              //       label: const Text("Add Plant"),
+              //       onPressed: () => _addPlant(context),
+              //       style: ElevatedButton.styleFrom(
+              //         foregroundColor: Colors.white,
+              //         backgroundColor: Colors.green,
+              //       ),
+              //     ),
+              //   ),
             ],
           ),
         ),
       ),
+      // Sticky "Add Plant" button at the bottom when applicable
+      bottomNavigationBar: fromModelDetection && !isHealthy
+          ? Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.add),
+                label: const Text("Add Plant"),
+                onPressed: () {
+                  // Handle Add Plant functionality here
+                  _addPlant(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.green,
+                  minimumSize: const Size.fromHeight(50), // Make it full-width
+                ),
+              ),
+            )
+          : null,
+    );
+  }
+
+  Widget _buildSection(String title, List<dynamic> items) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        const SizedBox(height: 8),
+        ...items.map((item) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.circle, size: 8, color: Colors.black54),
+                  const SizedBox(width: 8),
+                  Expanded(
+                      child: Text(item, style: const TextStyle(fontSize: 16))),
+                ],
+              ),
+            )),
+      ],
     );
   }
 }

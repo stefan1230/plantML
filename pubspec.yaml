@@ -81,6 +81,9 @@ flutter:
     - assets/
     - assets/plant_disease_model.tflite
     - assets/labels.txt
+    - assets/second_final_model_quantized_compatible.tflite
+    - assets/final_final_model_quantized_compatible.tflite
+    - assets/disease_info.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:plantdiseaseidentifcationml/models/plant.dart';
@@ -45,6 +48,26 @@ class _JourneyScreenState extends State<JourneyScreen> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+    _loadDiseaseData();
+  }
+
+  late List<dynamic> _diseaseData;
+  Map<String, dynamic>? _plantData;
+
+  Future<void> _loadDiseaseData() async {
+    final String dataString =
+        await rootBundle.loadString('assets/disease_info.json');
+    final Map<String, dynamic> jsonData = json.decode(dataString);
+
+    // Find the disease matching widget.plant.diagnosis
+    final disease = jsonData['diseases'].firstWhere(
+      (disease) => disease['displayName'] == widget.plant.diagnosis,
+      orElse: () => null,
+    );
+
+    setState(() {
+      _plantData = disease;
+    });
   }
 
   void _scrollListener() {
@@ -139,7 +162,11 @@ class _JourneyScreenState extends State<JourneyScreen> {
         padding: const EdgeInsets.only(top: 8.0, left: 18, right: 18),
         child: Column(
           children: [
-            DiagnosisCard(plant: widget.plant),
+            DiagnosisCard(
+              plant: widget.plant,
+              plantData: _plantData!,
+              imageURL: widget.plant.imageUrl,
+            ),
             Expanded(
               child: StreamBuilder<DocumentSnapshot>(
                 stream: FirebaseFirestore.instance
@@ -217,8 +244,10 @@ class _JourneyScreenState extends State<JourneyScreen> {
 
 class DiagnosisCard extends StatelessWidget {
   final Plant plant;
+  final Map<String, dynamic> plantData;
+  final String? imageURL;
 
-  DiagnosisCard({required this.plant});
+  DiagnosisCard({required this.plant, required this.plantData, this.imageURL});
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +255,11 @@ class DiagnosisCard extends StatelessWidget {
       onTap: () => {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => DiagnosisScreen()),
+          MaterialPageRoute(
+              builder: (context) => DiagnosisScreen(
+                    plantData: plantData,
+                    imageURL: imageURL,
+                  )),
         )
       },
       child: Card(

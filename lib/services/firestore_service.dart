@@ -169,7 +169,20 @@ class FirestoreService {
   //       });
   //     }
   //   }
-  // }
+  // }'
+
+  Future<String> uploadImage(File image) async {
+    try {
+      String fileName =
+          'plant_images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      TaskSnapshot snapshot = await _storage.ref(fileName).putFile(image);
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      print(downloadUrl);
+      return downloadUrl;
+    } catch (e) {
+      throw Exception("Image upload failed: $e");
+    }
+  }
 
   Future<void> addSampleData() async {
     User? user = FirebaseAuth.instance.currentUser;

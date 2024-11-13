@@ -1,166 +1,268 @@
-import 'package:flutter/material.dart';
+// import 'dart:io';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_svg/svg.dart';
+// import 'package:image_picker/image_picker.dart';
+// import 'package:plantdiseaseidentifcationml/app_color.dart';
+// import 'package:plantdiseaseidentifcationml/screens/community_screen.dart';
+// import 'package:plantdiseaseidentifcationml/screens/diagnosis_screen.dart';
+// import 'package:plantdiseaseidentifcationml/screens/home_screen.dart';
+// import 'package:plantdiseaseidentifcationml/screens/menu_screen.dart';
+// import 'package:plantdiseaseidentifcationml/screens/progress_tracker_screen.dart';
+// import 'package:camera/camera.dart';
+// import 'package:tflite_flutter/tflite_flutter.dart';
+// import 'package:image/image.dart' as img;
 
-void main() {
-  runApp(MyApp());
-}
+// class ControllerScreen extends StatefulWidget {
+//   const ControllerScreen({super.key});
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: PlantHelpScreen(),
-    );
-  }
-}
+//   @override
+//   State<ControllerScreen> createState() => _ControllerScreenState();
+// }
 
-class PlantHelpScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Plantix Help'),
-        backgroundColor: Colors.green[700],
-      ),
-      body: ListView(
-        padding: EdgeInsets.all(12.0),
-        children: [
-          _buildUserPost(),
-          SizedBox(height: 20),
-          _buildExpertResponse(),
-          SizedBox(height: 20),
-          _buildInputField(),
-        ],
-      ),
-    );
-  }
+// class _ControllerScreenState extends State<ControllerScreen> {
+//   int _selectedIndex = 0;
+//   CameraController? _cameraController;
+//   XFile? _imageFile;
+//   final ImagePicker picker = ImagePicker();
+//   bool _isProcessing = false;
+//   Interpreter? _interpreter;
 
-  Widget _buildUserPost() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            CircleAvatar(
-              backgroundImage:
-                  AssetImage('assets/user_icon.png'), // Dummy user image
-            ),
-            SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Sanjana Silva • Sri Lanka',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text('26 d • 🌶 Capsicum & Chilli'),
-              ],
-            ),
-          ],
-        ),
-        SizedBox(height: 10),
-        Text(
-          'Help identifying problem with my Capsicum & Chilli',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        SizedBox(height: 10),
-        Text(
-          'Plantix has detected a possible problem with my Capsicum & Chilli. I was given a few possibilities: '
-          '🌿 Chilli Leaf Curl Virus, 🌿 Cucumber Mosaic Virus of Pepper, 🌿 Bacterial Spot of Pepper. '
-          'Can you help me identifying the issue?',
-        ),
-        SizedBox(height: 10),
-        Container(
-          height: 200,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/plant_image.jpg'), // Dummy plant image
-              fit: BoxFit.cover,
-            ),
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-      ],
-    );
-  }
+//   static final List<Widget> _widgetOptions = <Widget>[
+//     const HomeScreen(),
+//     const ProgressTrackerScreen(),
+//     const ProgressTrackerScreen(),
+//     const CommunityScreen(),
+//     const MenuScreen(),
+//   ];
 
-  Widget _buildExpertResponse() {
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                backgroundImage: AssetImage(
-                    'assets/user_icon.png'), // Dummy user image for expert
-              ),
-              SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Venkat P',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text('961756'),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Text(
-            '@Sanjana Silva',
-            style: TextStyle(color: Colors.blue),
-          ),
-          SizedBox(height: 8),
-          Text.rich(
-            TextSpan(
-              children: [
-                WidgetSpan(
-                  child: Icon(Icons.bookmark, color: Colors.blue, size: 20),
-                ),
-                TextSpan(
-                  text: ' Chilli Thrips\n',
-                  style: TextStyle(
-                      color: Colors.blue, fontWeight: FontWeight.bold),
-                ),
-                TextSpan(
-                  text:
-                      'Click on above mentioned green link that will divert us to Plantix library for detailed information along with effective precautionary and curative measures.\n\n'
-                      'If you feel satisfied with our answer then please click on SOLVED button. Thank you 🙏🙏😊😊🌱',
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     _loadModel();
+//   }
 
-  Widget _buildInputField() {
-    return Row(
-      children: [
-        Expanded(
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: 'Write your answer',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(width: 8),
-        IconButton(
-          icon: Icon(Icons.send, color: Colors.green),
-          onPressed: () {},
-        ),
-      ],
-    );
-  }
-}
+//   @override
+//   void dispose() {
+//     _cameraController?.dispose();
+//     _interpreter?.close();
+//     super.dispose();
+//   }
+
+//   Future<void> _loadModel() async {
+//     try {
+//       _interpreter =
+//           await Interpreter.fromAsset('final_model_quantized.tflite');
+//       print('Model loaded successfully');
+//     } catch (e) {
+//       print('Error loading model: $e');
+//     }
+//   }
+
+//   Future<void> _pickImage(ImageSource source) async {
+//     try {
+//       final XFile? selectedImage = await picker.pickImage(source: source);
+//       if (selectedImage != null) {
+//         setState(() {
+//           _imageFile = selectedImage;
+//           _isProcessing = true;
+//         });
+//         await _detectDisease(File(selectedImage.path));
+//       }
+//     } catch (e) {
+//       print("Error picking image: $e");
+//     }
+//   }
+
+//   Future<void> _detectDisease(File image) async {
+//     if (_interpreter == null) {
+//       print("Interpreter not loaded");
+//       return;
+//     }
+
+//     final img.Image? imageInput = img.decodeImage(image.readAsBytesSync());
+//     if (imageInput == null) {
+//       print("Error decoding image");
+//       return;
+//     }
+
+//     final img.Image resizedImage =
+//         img.copyResize(imageInput, width: 224, height: 224);
+//     var input = _imageToByteListFloat32(resizedImage, 224);
+//     var output = List.filled(1 * 16, 0).reshape([1, 16]); // Assuming 16 classes
+
+//     _interpreter!.run(input, output);
+
+//     final resultIndex =
+//         output[0].indexWhere((value) => value == output[0].reduce(max));
+//     final diseaseName = await _getDiseaseName(resultIndex);
+
+//     setState(() {
+//       _isProcessing = false;
+//     });
+
+//     _navigateToDiagnosisScreen(diseaseName);
+//   }
+
+//   Uint8List _imageToByteListFloat32(img.Image image, int size) {
+//     var convertedBytes = Float32List(size * size * 3);
+//     var buffer = Float32List.view(convertedBytes.buffer);
+//     int pixelIndex = 0;
+//     for (int y = 0; y < size; y++) {
+//       for (int x = 0; x < size; x++) {
+//         final pixel = image.getPixel(x, y);
+//         buffer[pixelIndex++] = img.getRed(pixel) / 127.5 - 1.0;
+//         buffer[pixelIndex++] = img.getGreen(pixel) / 127.5 - 1.0;
+//         buffer[pixelIndex++] = img.getBlue(pixel) / 127.5 - 1.0;
+//       }
+//     }
+//     return convertedBytes.buffer.asUint8List();
+//   }
+
+//   Future<String> _getDiseaseName(int index) async {
+//     // Implement a mapping between class index and disease names here
+//     // You can load from your JSON or a Map
+//     List<String> diseaseNames = [
+//       "Pepper Bell - Bacterial Spot",
+//       "Potato - Early Blight",
+//       "Potato - Late Blight",
+//       "Tomato - Bacterial Spot",
+//       // Add other disease names as per your model classes
+//     ];
+//     return diseaseNames[index];
+//   }
+
+//   void _navigateToDiagnosisScreen(String diseaseName) {
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(
+//         builder: (context) => DiagnosisScreen(diseaseName: diseaseName),
+//       ),
+//     );
+//   }
+
+//   void _showImagePickerOptions() {
+//     showModalBottomSheet(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return SafeArea(
+//           child: Wrap(
+//             children: <Widget>[
+//               ListTile(
+//                 leading: Icon(Icons.photo_library),
+//                 title: Text('Photo Library'),
+//                 onTap: () {
+//                   Navigator.of(context).pop();
+//                   _pickImage(ImageSource.gallery);
+//                 },
+//               ),
+//               ListTile(
+//                 leading: Icon(Icons.photo_camera),
+//                 title: Text('Camera'),
+//                 onTap: () {
+//                   Navigator.of(context).pop();
+//                   _pickImage(ImageSource.camera);
+//                 },
+//               ),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.white,
+//       body: Center(
+//         child: _widgetOptions.elementAt(_selectedIndex),
+//       ),
+//       floatingActionButton: SizedBox(
+//         height: 65,
+//         width: 65,
+//         child: FloatingActionButton(
+//           onPressed: _showImagePickerOptions,
+//           backgroundColor: AppColors.MainGreen,
+//           shape: const CircleBorder(),
+//           child: SvgPicture.asset(
+//             'assets/scanner.svg',
+//             color: Colors.white,
+//             height: 40,
+//           ),
+//         ),
+//       ),
+//       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+//       bottomNavigationBar: BottomAppBar(
+//         color: const Color(0xffffffff),
+//         shape: const CircularNotchedRectangle(),
+//         notchMargin: 5,
+//         elevation: 8,
+//         shadowColor: Colors.black.withOpacity(1),
+//         child: SizedBox(
+//           height: 50,
+//           child: Row(
+//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//             children: <Widget>[
+//               Row(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: <Widget>[
+//                   buildNavItem(0, 'assets/house-blank-filled.svg',
+//                       'assets/house-blank.svg', 'Home'),
+//                   buildNavItem(1, 'assets/plant-growth-filled.svg',
+//                       'assets/plant-growth.svg', 'Progress'),
+//                 ],
+//               ),
+//               const SizedBox(width: 40),
+//               Row(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: <Widget>[
+//                   buildNavItem(3, 'assets/users-people-filled.svg',
+//                       'assets/users-people.svg', 'Community'),
+//                   buildNavItem(
+//                       4, 'assets/menu-filled.svg', 'assets/menu.svg', 'More'),
+//                 ],
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget buildNavItem(
+//       int index, String activeIconPath, String inactiveIconPath, String label) {
+//     return MaterialButton(
+//       minWidth: 40,
+//       onPressed: () {
+//         _onItemTapped(index);
+//       },
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: <Widget>[
+//           Material(
+//             shape: CircleBorder(),
+//             color: Colors.transparent,
+//             child: Padding(
+//               padding: const EdgeInsets.all(0.0),
+//               child: SvgPicture.asset(
+//                 _selectedIndex == index ? activeIconPath : inactiveIconPath,
+//                 color:
+//                     _selectedIndex == index ? AppColors.MainGreen : Colors.grey,
+//                 height: 24,
+//               ),
+//             ),
+//           ),
+//           SizedBox(height: 4),
+//           Text(
+//             label,
+//             style: TextStyle(
+//               color:
+//                   _selectedIndex == index ? AppColors.MainGreen : Colors.grey,
+//               fontSize: 10,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

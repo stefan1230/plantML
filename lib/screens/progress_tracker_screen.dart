@@ -155,9 +155,9 @@ class _ProgressTrackerScreenState extends State<ProgressTrackerScreen> {
     // _addSampleData();
   }
 
-  Future<void> _addSampleData() async {
-    await FirestoreService().addSampleData();
-  }
+  // Future<void> _addSampleData() async {
+  //   await FirestoreService().addSampleData();
+  // }
 
   String formatDate(Timestamp timestamp) {
     // Convert Timestamp to DateTime
