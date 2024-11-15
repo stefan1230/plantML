@@ -90,7 +90,8 @@ class FirestoreService {
     });
   }
 
-  Future<void> addProgressImage(String plantId, File image) async {
+  Future<void> addProgressImage(
+      String plantId, File image, String note, double healthMeter) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception("No user logged in");
@@ -106,13 +107,19 @@ class FirestoreService {
     String storagePath = 'plants/$plantId/$fileName';
 
     try {
+      // Upload the image to Firebase Storage
       TaskSnapshot snapshot = await _storage.ref(storagePath).putFile(image);
       String downloadUrl = await snapshot.ref.getDownloadURL();
+
+      // Prepare the data to be stored in Firestore
       Map<String, dynamic> imageData = {
         'url': downloadUrl,
-        'date': DateTime.now() // Use client's current datetime
+        'date': DateTime.now(), // Store the timestamp
+        'note': note,
+        'healthMeter': healthMeter,
       };
 
+      // Update the Firestore document with the new progress data
       await plantsCollection.doc(plantId).update({
         'progressImages': FieldValue.arrayUnion([imageData]),
       });

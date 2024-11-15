@@ -102,69 +102,69 @@ class _HomeScreenState extends State<HomeScreen> {
             // ),
 
             // Quick Access Buttons
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20.0),
-                child: Row(
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // Navigate to scan screen
-                      },
-                      icon: const Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                      ),
-                      label: const Text('Scan Plant',
-                          style: TextStyle(color: Colors.white)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.MainGreen,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.of(context, rootNavigator: false).push(
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const ProgressTrackerScreen()));
-                        // Navigator.push(
-                        //   context,
-                        // MaterialPageRoute(
-                        //     builder: (context) =>
-                        //         const ProgressTrackerScreen()),
-                        // );
-                      },
-                      icon: const Icon(
-                        Icons.local_florist,
-                        color: Colors.white,
-                      ),
-                      label: const Text('My Plants',
-                          style: TextStyle(color: Colors.white)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.MainGreen,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // Navigate to community forum
-                      },
-                      icon: const Icon(
-                        Icons.forum,
-                        color: Colors.white,
-                      ),
-                      label: const Text('Community',
-                          style: TextStyle(color: Colors.white)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.MainGreen,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            // SingleChildScrollView(
+            //   scrollDirection: Axis.horizontal,
+            //   child: Padding(
+            //     padding: const EdgeInsets.only(left: 20.0),
+            //     child: Row(
+            //       children: [
+            //         ElevatedButton.icon(
+            //           onPressed: () {
+            //             // Navigate to scan screen
+            //           },
+            //           icon: const Icon(
+            //             Icons.camera_alt,
+            //             color: Colors.white,
+            //           ),
+            //           label: const Text('Scan Plant',
+            //               style: TextStyle(color: Colors.white)),
+            //           style: ElevatedButton.styleFrom(
+            //             backgroundColor: AppColors.MainGreen,
+            //           ),
+            //         ),
+            //         const SizedBox(width: 10),
+            //         ElevatedButton.icon(
+            //           onPressed: () {
+            //             Navigator.of(context, rootNavigator: false).push(
+            //                 MaterialPageRoute(
+            //                     builder: (context) =>
+            //                         const ProgressTrackerScreen()));
+            //             // Navigator.push(
+            //             //   context,
+            //             // MaterialPageRoute(
+            //             //     builder: (context) =>
+            //             //         const ProgressTrackerScreen()),
+            //             // );
+            //           },
+            //           icon: const Icon(
+            //             Icons.local_florist,
+            //             color: Colors.white,
+            //           ),
+            //           label: const Text('My Plants',
+            //               style: TextStyle(color: Colors.white)),
+            //           style: ElevatedButton.styleFrom(
+            //             backgroundColor: AppColors.MainGreen,
+            //           ),
+            //         ),
+            //         const SizedBox(width: 10),
+            //         ElevatedButton.icon(
+            //           onPressed: () {
+            //             // Navigate to community forum
+            //           },
+            //           icon: const Icon(
+            //             Icons.forum,
+            //             color: Colors.white,
+            //           ),
+            //           label: const Text('Community',
+            //               style: TextStyle(color: Colors.white)),
+            //           style: ElevatedButton.styleFrom(
+            //             backgroundColor: AppColors.MainGreen,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 0),
 
             // Latest News/Updates

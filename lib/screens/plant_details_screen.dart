@@ -1,409 +1,329 @@
-import 'dart:convert';
+// import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
-import 'package:timeline_tile/timeline_tile.dart';
-import 'package:plantdiseaseidentifcationml/models/plant.dart';
-import 'package:plantdiseaseidentifcationml/screens/diagnosis_screen.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter/rendering.dart';
+// import 'package:flutter/services.dart';
+// import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
+// import 'package:timeline_tile/timeline_tile.dart';
+// import 'package:plantdiseaseidentifcationml/models/plant.dart';
+// import 'package:plantdiseaseidentifcationml/screens/diagnosis_screen.dart';
+// import 'package:image_picker/image_picker.dart';
+// import 'dart:io';
 
-class JourneyScreen extends StatefulWidget {
-  final Plant plant;
+// class JourneyScreen extends StatefulWidget {
+//   final Plant plant;
 
-  JourneyScreen({required this.plant});
+//   JourneyScreen({required this.plant});
 
-  @override
-  _JourneyScreenState createState() => _JourneyScreenState();
-}
+//   @override
+//   _JourneyScreenState createState() => _JourneyScreenState();
+// }
 
-class _JourneyScreenState extends State<JourneyScreen> {
-  late ScrollController _scrollController;
-  bool _isFabVisible = true;
-  File? _image;
+// class _JourneyScreenState extends State<JourneyScreen> {
+//   late ScrollController _scrollController;
+//   bool _isFabVisible = true;
+//   File? _image;
 
-  final List<Map<String, String>> progressImages = [
-    {
-      'imageUrl': 'https://via.placeholder.com/150',
-      'date': '2023-01-01',
-      'description': 'Image 1 description'
-    },
-    {
-      'imageUrl': 'https://via.placeholder.com/150',
-      'date': '2023-01-02',
-      'description': 'Image 2 description'
-    },
-    {
-      'imageUrl': 'https://via.placeholder.com/150',
-      'date': '2023-01-03',
-      'description': 'Image 3 description'
-    },
-  ];
+//   final List<Map<String, String>> progressImages = [
+//     {
+//       'imageUrl': 'https://via.placeholder.com/150',
+//       'date': '2023-01-01',
+//       'description': 'Image 1 description'
+//     },
+//     {
+//       'imageUrl': 'https://via.placeholder.com/150',
+//       'date': '2023-01-02',
+//       'description': 'Image 2 description'
+//     },
+//     {
+//       'imageUrl': 'https://via.placeholder.com/150',
+//       'date': '2023-01-03',
+//       'description': 'Image 3 description'
+//     },
+//   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-    _scrollController.addListener(_scrollListener);
-    _loadDiseaseData();
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     _scrollController = ScrollController();
+//     _scrollController.addListener(_scrollListener);
+//     _loadDiseaseData();
+//   }
 
-  late List<dynamic> _diseaseData;
-  Map<String, dynamic>? _plantData;
+//   late List<dynamic> _diseaseData;
+//   Map<String, dynamic>? _plantData;
 
-  Future<void> _loadDiseaseData() async {
-    final String dataString =
-        await rootBundle.loadString('assets/disease_info.json');
-    final Map<String, dynamic> jsonData = json.decode(dataString);
+//   Future<void> _loadDiseaseData() async {
+//     final String dataString =
+//         await rootBundle.loadString('assets/disease_info.json');
+//     final Map<String, dynamic> jsonData = json.decode(dataString);
 
-    // Find the disease matching widget.plant.diagnosis
-    final disease = jsonData['diseases'].firstWhere(
-      (disease) => disease['displayName'] == widget.plant.diagnosis,
-      orElse: () => null,
-    );
+//     // Find the disease matching widget.plant.diagnosis
+//     final disease = jsonData['diseases'].firstWhere(
+//       (disease) => disease['displayName'] == widget.plant.diagnosis,
+//       orElse: () => null,
+//     );
 
-    setState(() {
-      _plantData = disease;
-    });
-  }
+//     setState(() {
+//       _plantData = disease;
+//     });
+//   }
 
-  void _scrollListener() {
-    if (_scrollController.position.userScrollDirection ==
-        ScrollDirection.reverse) {
-      if (_isFabVisible) setState(() => _isFabVisible = false);
-    }
-    if (_scrollController.position.userScrollDirection ==
-        ScrollDirection.forward) {
-      if (!_isFabVisible) setState(() => _isFabVisible = true);
-    }
-  }
+//   void _scrollListener() {
+//     if (_scrollController.position.userScrollDirection ==
+//         ScrollDirection.reverse) {
+//       if (_isFabVisible) setState(() => _isFabVisible = false);
+//     }
+//     if (_scrollController.position.userScrollDirection ==
+//         ScrollDirection.forward) {
+//       if (!_isFabVisible) setState(() => _isFabVisible = true);
+//     }
+//   }
 
-  Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-      }
-    });
-  }
+//   Future<void> _pickImage() async {
+//     final pickedFile =
+//         await ImagePicker().pickImage(source: ImageSource.gallery);
+//     setState(() {
+//       if (pickedFile != null) {
+//         _image = File(pickedFile.path);
+//       }
+//     });
+//   }
 
-  // Future<void> _uploadProgressImage() async {
-  //   // Here you can handle the image upload
-  //   if (_image != null) {
-  //     setState(() {
-  //       progressImages.add({
-  //         'imageUrl': _image!.path,
-  //         'date': DateTime.now().toIso8601String(),
-  //         'description': 'Newly added image'
-  //       });
-  //       _image = null;
-  //     });
-  //   }
-  // }
+//   // Future<void> _uploadProgressImage() async {
+//   //   // Here you can handle the image upload
+//   //   if (_image != null) {
+//   //     setState(() {
+//   //       progressImages.add({
+//   //         'imageUrl': _image!.path,
+//   //         'date': DateTime.now().toIso8601String(),
+//   //         'description': 'Newly added image'
+//   //       });
+//   //       _image = null;
+//   //     });
+//   //   }
+//   // }
 
-  Future<void> _uploadProgressImage() async {
-    print(widget.plant.id);
-    if (_image != null) {
-      try {
-        // Show loading indicator
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return Center(child: CircularProgressIndicator());
-          },
-        );
+//   Future<void> _uploadProgressImage() async {
+//     print(widget.plant.id);
+//     if (_image != null) {
+//       try {
+//         // Show loading indicator
+//         showDialog(
+//           context: context,
+//           barrierDismissible: false,
+//           builder: (BuildContext context) {
+//             return Center(child: CircularProgressIndicator());
+//           },
+//         );
 
-        // Call the Firestore service to add the progress image
-        await FirestoreService().addProgressImage(widget.plant.id, _image!);
+//         // Call the Firestore service to add the progress image
+//         await FirestoreService().addProgressImage(widget.plant.id, _image!);
 
-        // Hide loading indicator
-        Navigator.of(context).pop();
+//         // Hide loading indicator
+//         Navigator.of(context).pop();
 
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Progress image uploaded successfully')),
-        );
+//         // Show success message
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(content: Text('Progress image uploaded successfully')),
+//         );
 
-        // Clear the selected image
-        setState(() {
-          _image = null;
-        });
-      } catch (e) {
-        // Hide loading indicator
-        Navigator.of(context).pop();
+//         // Clear the selected image
+//         setState(() {
+//           _image = null;
+//         });
+//       } catch (e) {
+//         // Hide loading indicator
+//         Navigator.of(context).pop();
 
-        // Show error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to upload progress image: $e')),
-        );
-      }
-    }
-  }
+//         // Show error message
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(content: Text('Failed to upload progress image: $e')),
+//         );
+//       }
+//     }
+//   }
 
-  @override
-  void dispose() {
-    _scrollController.removeListener(_scrollListener);
-    _scrollController.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     _scrollController.removeListener(_scrollListener);
+//     _scrollController.dispose();
+//     super.dispose();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Diagnosis'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 8.0, left: 18, right: 18),
-        child: Column(
-          children: [
-            DiagnosisCard(
-              plant: widget.plant,
-              plantData: _plantData!,
-              imageURL: widget.plant.imageUrl,
-            ),
-            Expanded(
-              child: StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('plants')
-                    .doc(widget.plant.id)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData || !snapshot.data!.exists) {
-                    return Center(child: Text('No progress images yet.'));
-                  }
-                  List<dynamic> progressImages =
-                      snapshot.data!['progressImages'] ?? [];
-                  return ListView.builder(
-                    controller: _scrollController,
-                    itemCount: progressImages.length,
-                    itemBuilder: (context, index) {
-                      Map<String, dynamic> imageData = progressImages[index];
-                      String imageUrl = imageData['url'];
-                      DateTime date = (imageData['date'] as Timestamp).toDate();
-                      return JourneyTile(
-                        title: 'Progress Image',
-                        date: date
-                            .toString()
-                            .split(' ')[0], // Only show the date part
-                        description: '',
-                        imageUrl: imageUrl,
-                        isFirst: index == 0,
-                        isLast: index == progressImages.length - 1,
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-            if (_image != null)
-              Column(
-                children: [
-                  Image.file(_image!, height: 200),
-                  ElevatedButton(
-                    onPressed: _uploadProgressImage,
-                    child: Text('Upload Progress Image'),
-                  ),
-                ],
-              ),
-          ],
-        ),
-      ),
-      floatingActionButton: AnimatedOpacity(
-        opacity: _isFabVisible ? 1.0 : 0.0,
-        duration: Duration(milliseconds: 300),
-        child: _isFabVisible
-            ? FloatingActionButton.extended(
-                onPressed: _pickImage,
-                icon: Icon(Icons.add),
-                label: Text('Add Progress'),
-                tooltip: 'Add Progress',
-              )
-            : null,
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(9.0),
-        child: ElevatedButton(
-          onPressed: () {
-            // Confirm journey action
-          },
-          child: Text('Complete  Diagnosis'),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Diagnosis'),
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.only(top: 8.0, left: 18, right: 18),
+//         child: Column(
+//           children: [
+//             DiagnosisCard(
+//               plant: widget.plant,
+//               plantData: _plantData!,
+//               imageURL: widget.plant.imageUrl,
+//             ),
+//             Expanded(
+//               child: StreamBuilder<DocumentSnapshot>(
+//                 stream: FirebaseFirestore.instance
+//                     .collection('plants')
+//                     .doc(widget.plant.id)
+//                     .snapshots(),
+//                 builder: (context, snapshot) {
+//                   if (snapshot.connectionState == ConnectionState.waiting) {
+//                     return Center(child: CircularProgressIndicator());
+//                   }
+//                   if (!snapshot.hasData || !snapshot.data!.exists) {
+//                     return Center(child: Text('No progress images yet.'));
+//                   }
+//                   List<dynamic> progressImages =
+//                       snapshot.data!['progressImages'] ?? [];
+//                   return ListView.builder(
+//                     controller: _scrollController,
+//                     itemCount: progressImages.length,
+//                     itemBuilder: (context, index) {
+//                       Map<String, dynamic> imageData = progressImages[index];
+//                       String imageUrl = imageData['url'];
+//                       DateTime date = (imageData['date'] as Timestamp).toDate();
+//                       return JourneyTile(
+//                         title: 'Progress Image',
+//                         date: date
+//                             .toString()
+//                             .split(' ')[0], // Only show the date part
+//                         description: '',
+//                         imageUrl: imageUrl,
+//                         isFirst: index == 0,
+//                         isLast: index == progressImages.length - 1,
+//                       );
+//                     },
+//                   );
+//                 },
+//               ),
+//             ),
+//             if (_image != null)
+//               Column(
+//                 children: [
+//                   Image.file(_image!, height: 200),
+//                   ElevatedButton(
+//                     onPressed: _uploadProgressImage,
+//                     child: Text('Upload Progress Image'),
+//                   ),
+//                 ],
+//               ),
+//           ],
+//         ),
+//       ),
+//       floatingActionButton: AnimatedOpacity(
+//         opacity: _isFabVisible ? 1.0 : 0.0,
+//         duration: Duration(milliseconds: 300),
+//         child: _isFabVisible
+//             ? FloatingActionButton.extended(
+//                 onPressed: _pickImage,
+//                 icon: Icon(Icons.add),
+//                 label: Text('Add Progress'),
+//                 tooltip: 'Add Progress',
+//               )
+//             : null,
+//       ),
+//       bottomNavigationBar: Padding(
+//         padding: const EdgeInsets.all(9.0),
+//         child: ElevatedButton(
+//           onPressed: () {
+//             // Confirm journey action
+//           },
+//           child: Text('Complete  Diagnosis'),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
-class DiagnosisCard extends StatelessWidget {
-  final Plant plant;
-  final Map<String, dynamic> plantData;
-  final String? imageURL;
+// class JourneyTile extends StatelessWidget {
+//   final String title;
+//   final String date;
+//   final String description;
+//   final String imageUrl;
+//   final bool isFirst;
+//   final bool isLast;
 
-  DiagnosisCard({required this.plant, required this.plantData, this.imageURL});
+//   JourneyTile({
+//     required this.title,
+//     required this.date,
+//     required this.description,
+//     required this.imageUrl,
+//     this.isFirst = false,
+//     this.isLast = false,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => DiagnosisScreen(
-                    plantData: plantData,
-                    imageURL: imageURL,
-                  )),
-        )
-      },
-      child: Card(
-        margin: EdgeInsets.symmetric(vertical: 10),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  plant.imageUrl,
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      plant.diagnosis,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Remedies: ${plant.remedies}',
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Prevention: ${plant.prevention}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class JourneyTile extends StatelessWidget {
-  final String title;
-  final String date;
-  final String description;
-  final String imageUrl;
-  final bool isFirst;
-  final bool isLast;
-
-  JourneyTile({
-    required this.title,
-    required this.date,
-    required this.description,
-    required this.imageUrl,
-    this.isFirst = false,
-    this.isLast = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TimelineTile(
-      alignment: TimelineAlign.manual,
-      lineXY: 0.1,
-      isFirst: isFirst,
-      isLast: isLast,
-      beforeLineStyle: LineStyle(
-        color: Colors.grey,
-        thickness: 2,
-      ),
-      afterLineStyle: LineStyle(
-        color: Colors.grey,
-        thickness: 2,
-      ),
-      indicatorStyle: IndicatorStyle(
-        width: 20,
-        color: Colors.blue,
-        padding: const EdgeInsets.all(6),
-      ),
-      endChild: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundImage: NetworkImage(imageUrl),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    date,
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      startChild: Container(
-        width: 50,
-        child: Center(
-          child: Text(
-            '20',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
+//   @override
+//   Widget build(BuildContext context) {
+//     return TimelineTile(
+//       alignment: TimelineAlign.manual,
+//       lineXY: 0.1,
+//       isFirst: isFirst,
+//       isLast: isLast,
+//       beforeLineStyle: LineStyle(
+//         color: Colors.grey,
+//         thickness: 2,
+//       ),
+//       afterLineStyle: LineStyle(
+//         color: Colors.grey,
+//         thickness: 2,
+//       ),
+//       indicatorStyle: IndicatorStyle(
+//         width: 20,
+//         color: Colors.blue,
+//         padding: const EdgeInsets.all(6),
+//       ),
+//       endChild: Padding(
+//         padding: const EdgeInsets.all(8.0),
+//         child: Row(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           crossAxisAlignment: CrossAxisAlignment.center,
+//           children: [
+//             CircleAvatar(
+//               radius: 30,
+//               backgroundImage: NetworkImage(imageUrl),
+//             ),
+//             SizedBox(width: 16),
+//             Expanded(
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [
+//                   Text(
+//                     title,
+//                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+//                   ),
+//                   Text(
+//                     date,
+//                     style: TextStyle(color: Colors.grey),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//       startChild: Container(
+//         width: 50,
+//         child: Center(
+//           child: Text(
+//             '20',
+//             style: TextStyle(
+//               fontSize: 16,
+//               fontWeight: FontWeight.bold,
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 // import 'package:flutter/material.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
@@ -522,7 +442,6 @@ class JourneyTile extends StatelessWidget {
 //     );
 //   }
 // }
-
 
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:flutter/material.dart';
@@ -832,3 +751,324 @@ class JourneyTile extends StatelessWidget {
 //     );
 //   }
 // }
+
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:plantdiseaseidentifcationml/commonComponents/common_appbar.dart';
+import 'package:plantdiseaseidentifcationml/models/plant.dart';
+import 'package:plantdiseaseidentifcationml/screens/add_progress_screen.dart';
+import 'package:plantdiseaseidentifcationml/screens/diagnosis_screen.dart';
+import 'package:plantdiseaseidentifcationml/services/firestore_service.dart';
+import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
+class JourneyScreen extends StatefulWidget {
+  final Plant plant;
+
+  JourneyScreen({required this.plant});
+
+  @override
+  _JourneyScreenState createState() => _JourneyScreenState();
+}
+
+class _JourneyScreenState extends State<JourneyScreen> {
+  File? _image;
+
+  @override
+  void initState() {
+    super.initState();
+    // _scrollController = ScrollController();
+    // _scrollController.addListener(_scrollListener);
+    _loadDiseaseData();
+  }
+
+  late List<dynamic> _diseaseData;
+  Map<String, dynamic>? _plantData;
+
+  Future<void> _loadDiseaseData() async {
+    final String dataString =
+        await rootBundle.loadString('assets/disease_info.json');
+    final Map<String, dynamic> jsonData = json.decode(dataString);
+
+    // Find the disease matching widget.plant.diagnosis
+    final disease = jsonData['diseases'].firstWhere(
+      (disease) => disease['displayName'] == widget.plant.diagnosis,
+      orElse: () => null,
+    );
+
+    setState(() {
+      _plantData = disease;
+    });
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      }
+    });
+  }
+
+  // Future<void> _uploadProgressImage() async {
+  //   if (_image != null) {
+  //     try {
+  //       showDialog(
+  //         context: context,
+  //         barrierDismissible: false,
+  //         builder: (context) => Center(child: CircularProgressIndicator()),
+  //       );
+
+  //       await FirestoreService().addProgressImage(widget.plant.id, _image!);
+
+  //       Navigator.of(context).pop();
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Progress image uploaded successfully')),
+  //       );
+
+  //       setState(() {
+  //         _image = null;
+  //       });
+  //     } catch (e) {
+  //       Navigator.of(context).pop();
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Failed to upload progress image: $e')),
+  //       );
+  //     }
+  //   }
+  // }
+
+  String formatDate(Timestamp timestamp) {
+    DateTime date = timestamp.toDate();
+    return DateFormat('d MMMM yyyy').format(date);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // appBar: AppBar(
+      //   title: Text(widget.plant.diagnosis),
+      // ),
+      appBar: CommonAppBar(
+        title: widget.plant.diagnosis,
+        leading: true,
+      ),
+      body: Column(
+        children: [
+          // Tab bar
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(vertical: 8.0),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //     children: [
+          //       Text("Overview", style: TextStyle(color: Colors.grey)),
+          //       Text("Care Schedule", style: TextStyle(color: Colors.grey)),
+          //       Text("Photos & Notes",
+          //           style: TextStyle(
+          //               fontWeight: FontWeight.bold, color: Colors.black)),
+          //       Text("Plant Info", style: TextStyle(color: Colors.grey)),
+          //     ],
+          //   ),
+          // ),
+          // Divider(thickness: 1),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DiagnosisCard(
+              plant: widget.plant,
+              plantData: _plantData!,
+              imageURL: widget.plant.imageUrl,
+            ),
+          ),
+          // Image Grid
+          Expanded(
+            child: StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('plants')
+                  .doc(widget.plant.id)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || !snapshot.data!.exists) {
+                  return Center(child: Text('No progress images yet.'));
+                }
+                List<dynamic> progressImages =
+                    snapshot.data!['progressImages'] ?? [];
+
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                    ),
+                    itemCount: progressImages.length,
+                    itemBuilder: (context, index) {
+                      Map<String, dynamic> imageData = progressImages[index];
+                      String imageUrl = imageData['url'];
+                      DateTime date = (imageData['date'] as Timestamp).toDate();
+                      String formattedDate =
+                          DateFormat('d\nMMMM yyyy').format(date);
+
+                      return Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
+                          ),
+                          Positioned(
+                            left: 8,
+                            top: 8,
+                            child: Text(
+                              "Test", // Assuming a label text is needed; adjust as necessary
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 8,
+                            bottom: 8,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  formattedDate.split("\n")[0],
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24,
+                                  ),
+                                ),
+                                Text(
+                                  formattedDate.split("\n")[1],
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _pickImage,
+      //   backgroundColor: Colors.green.shade300,
+      //   child: Icon(Icons.add),
+      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    AddProgressScreen(plantId: widget.plant.id)),
+          );
+        },
+        backgroundColor: Colors.green.shade300,
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class DiagnosisCard extends StatelessWidget {
+  final Plant plant;
+  final Map<String, dynamic> plantData;
+  final String? imageURL;
+
+  DiagnosisCard({required this.plant, required this.plantData, this.imageURL});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => DiagnosisScreen(
+                    plantData: plantData,
+                    imageURL: imageURL,
+                  )),
+        )
+      },
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  plant.imageUrl,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      plant.diagnosis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    // const SizedBox(height: 5),
+                    // Text(
+                    //   'Remedies: ${plant.remedies}',
+                    //   style: TextStyle(
+                    //     color: Colors.green,
+                    //     fontSize: 14,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 5),
+                    // Text(
+                    //   'Prevention: ${plant.prevention}',
+                    //   style: TextStyle(
+                    //     fontSize: 14,
+                    //     color: Colors.black87,
+                    //   ),
+                    // ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
